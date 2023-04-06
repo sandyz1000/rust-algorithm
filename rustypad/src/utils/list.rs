@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[derive(PartialEq, Eq, Clone, Debug)]
 struct ListNode {
     pub val: i32,

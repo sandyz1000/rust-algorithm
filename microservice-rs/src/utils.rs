@@ -35,7 +35,7 @@ use core::future::Future;
 /// A [Result](std::result::Result), which can be transformed into a
 /// [Future](core::future::Future) of [Result](std::result::Result)
 #[async_trait(?Send)]
-pub trait FutureResult {
+pub trait FutureResult<T, E> {
     /// The success value of the `Result`
     type Ok;
 
@@ -92,7 +92,7 @@ pub trait FutureResult {
 }
 
 #[async_trait(?Send)]
-impl<T: Sync, E: Sync> FutureResult for Result<T, E> {
+impl<T: Sync, E: Sync> FutureResult<T, E> for Result<T, E> {
     type Ok = T;
     type Err = E;
 

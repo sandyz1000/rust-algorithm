@@ -1,4 +1,4 @@
-use schema::messages;
+use crate::schema::messages;
 
 #[derive(Queryable, Serialize, Debug)]
 pub struct Message {
