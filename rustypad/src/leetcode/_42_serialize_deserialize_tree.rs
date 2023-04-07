@@ -32,28 +32,21 @@ Constraints:
 The number of nodes in the tree is in the range [0, 104].
 -1000 <= Node.val <= 1000
 
-from typing import List
-
-
  */
 
+struct TreeNode {
+    val: i32,
+    left: Option<Box<TreeNode>>,
+    right: Option<Box<TreeNode>>,
+}
 
-//  class TreeNode(object):
-//  def __init__(self, x):
-//      self.val = x
-//      self.left = None
-//      self.right = None
 
+struct Codec;
 
-// class Codec:
-
-//  def serialize(self, root) -> str:
-//      """Encodes a tree to a single string.
-
-//      :type root: TreeNode
-//      :rtype: str
-//      """
-//      #  Serialize tree with pre-order traversal
+impl Codec {
+    /// Encodes a tree to a single string
+    fn serialize(&self, root: TreeNode) -> &str {
+        //      #  Serialize tree with pre-order traversal
 //      def _preorder(root: TreeNode, ans: List):
 //          """
 //          Output: 1, 2, null, null, 3, 4, null, null, 5, null, null
@@ -69,13 +62,13 @@ from typing import List
 //      ans = []
 //      _preorder(root, ans)
 //      return ",".join([str(node) for node in ans])
+        todo!()
+    }
 
-//  def deserialize(self, data: str) -> TreeNode:
-//      """Decodes your encoded data to tree.
+    /// Decodes your encoded data to tree.
+    fn deserialize(&self, data: &str) -> TreeNode {
+        todo!()
 
-//      :type data: str
-//      :rtype: TreeNode
-//      """
 //      # De-Serialize the pre-order list to tree node
 //      def _preorder(data: List) -> TreeNode:
 //          if data[0] == "None":
@@ -90,10 +83,17 @@ from typing import List
 //      root = _preorder(data)
 //      return root
 
+    }
 
-// def main():
-//  ser = Codec()
-//  deser = Codec()
-//  root = None
-//  ans = deser.deserialize(ser.serialize(root))
+
+}
+
+#[test]
+fn test() {
+    //  ser = Codec()
+    //  deser = Codec()
+    //  root = None
+    //  ans = deser.deserialize(ser.serialize(root))
+}
+
  

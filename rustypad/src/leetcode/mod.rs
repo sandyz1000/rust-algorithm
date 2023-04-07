@@ -37,6 +37,7 @@ mod _36_meeting_room_ii;
 mod _37_alien_dictionary;
 mod _38_chepest_flight_k_stops;
 mod _39_evaluate_div;
+mod _40_course_schedule;
 mod _41_word_in_all_sent;
 mod _42_serialize_deserialize_tree;
 mod _43_insert_interval;
@@ -57,4 +58,9 @@ mod _57_path_exist_in_graph;
 mod _58_k_largest_in_array;
 mod _59_min_cost_connect_points;
 mod _60_add_two_number;
-mod _40_course_schedule;
+mod _61_two_sum;
+mod _63_g_depth_first_search;
+mod _62_g_breadth_first_search
+mod _64_linked_list;
+mod _65_graph;
+mod _66_reverse_linked_list; copy;
