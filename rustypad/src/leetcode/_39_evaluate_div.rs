@@ -43,83 +43,99 @@ Input: equations = [["a","b"]]
 values = [0.5]
 queries = [["a","b"],["b","a"],["a","c"],["x","y"]]
 Output: [0.50000,2.00000,-1.00000,-1.00000]
+
  */
 
-
-// from typing import List, DefaultDict
-// from collections import defaultdict, deque
+use std::collections::{HashMap, BinaryHeap, HashSet};
 
 
-// def calcEquation(
-//     equations: List[List[str]],
-//     values: List[float],
-//     queries: List[List[str]]
-// ) -> List[float]:
-//     # build graph of equations and values
-//     # iterate the queries for each src and dest and return the ans
+struct Solution;
 
-//     graph = defaultdict(dict)
-//     for node, weight in zip(equations, values):
-//         graph[node[0]][node[1]] = weight
-//         graph[node[1]][node[0]] = 1.0 / weight
+type GraphType = HashMap<String, HashMap<i32, f32>>;
 
-//     ans = []
-//     for dividend, divisor in queries:
-//         if dividend not in graph or divisor not in graph:
-//             ans.append(-1.0)
-//         elif dividend == divisor:
-//             ans.append(1.0)
-//         else:
-//             ans.append(bfs(graph, dividend, divisor))
+impl Solution {
+    
+    /// build graph of equations and values
+    /// iterate the queries for each src and dest and return the ans
+    fn calc_equation(
+        equations: Vec<[&str; 2]>,
+        values: Vec<f32>,
+        queries: Vec<[&str; 2]>
+    ) -> Vec<f32> {
+        // graph = defaultdict(dict)
+        // for node, weight in zip(equations, values):
+        //     graph[node[0]][node[1]] = weight
+        //     graph[node[1]][node[0]] = 1.0 / weight
+    
+        let mut ans: Vec<f32> = Vec::new();
+        // for dividend, divisor in queries:
+        //     if dividend not in graph or divisor not in graph:
+        //         ans.append(-1.0)
+        //     elif dividend == divisor:
+        //         ans.append(1.0)
+        //     else:
+        //         ans.append(bfs(graph, dividend, divisor))
+            
+        return ans
+
+    }
+    
+    fn bfs(graph: GraphType, source: i32, target: i32) -> i32 {
+        let mut __q: BinaryHeap<(i32, i32)> = BinaryHeap::new();
+        let mut visited: HashSet<i32> = HashSet::new();
+        __q.push((source, 1));
+        visited.insert(source);
         
-//     return ans
+        // while __q:
+        //     node, prod = __q.popleft()
+        //     // If target reached
+        //     if node == target:
+        //         return prod
+            
+        //     // For each divisor and quotient
+        //     for ch, value in graph[node].items():
+        //         if ch not in visited:
+        //             visited.add(ch)
+        //             __q.append((ch, value * prod))
+    
+        return -1
 
+    }
+    
+}
 
-// def bfs(graph: DefaultDict, source: int, target: int):
-//     __q = deque([(source, 1)])
-//     visited = set([source])
-//     while __q:
-//         node, prod = __q.popleft()
-//         # If target reached
-//         if node == target:
-//             return prod
-        
-//         # For each divisor and quotient
-//         for ch, value in graph[node].items():
-//             if ch not in visited:
-//                 visited.add(ch)
-//                 __q.append((ch, value * prod))
+#[test]
+fn test1() {
+    println!(">>> Executing Test-1 >>>");
+    // a / c = (a / b) * (b / c)
+    let equations = vec![["a", "b"], ["b", "c"]];
+    let values = vec![2.0, 3.0];
+    let queries = vec![["a", "c"], ["b", "a"], ["a", "e"], ["a", "a"], ["x", "x"]];
+    let output = vec![6.00000, 0.50000, -1.00000, 1.00000, -1.00000];
+    let ans = Solution::calc_equation(equations, values, queries);
+    assert_eq!(ans, output);
 
-//     return -1
+}
 
+#[test]
+fn test2() {
+    println!(">>> Executing Test-2 >>>");
+    let equations = vec![["a", "b"], ["b", "c"], ["bc", "cd"]];
+    let values = vec![1.5, 2.5, 5.0];
+    let queries = vec![["a", "c"], ["c", "b"], ["bc", "cd"], ["cd", "bc"]];
+    let output = vec![3.75000, 0.40000, 5.00000, 0.20000];
+    let ans = Solution::calc_equation(equations, values, queries);
+    assert_eq!(ans, output);
+}
 
-// def cli_main():
-//     print(">>> Executing Test-1 >>>")
-//     # a / c = (a / b) * (b / c)
-//     #
-//     equations = [["a", "b"], ["b", "c"]]
-//     values = [2.0, 3.0]
-//     queries = [["a", "c"], ["b", "a"], ["a", "e"], ["a", "a"], ["x", "x"]]
-//     output = [6.00000, 0.50000, -1.00000, 1.00000, -1.00000]
-//     ans = calcEquation(equations, values, queries)
-//     assert ans == output
+#[test]
+fn test3() {
+    println!(">>> Executing Test-3 >>>")
+    let equations = vec![["a", "b"]];
+    let values = vec![0.5];
+    let queries = vec![["a", "b"], ["b", "a"], ["a", "c"], ["x", "y"]];
+    let output = vec![0.50000, 2.00000, -1.00000, -1.00000];
+    let ans = Solution::calc_equation(equations, values, queries);
+    assert_eq!(ans, output);
+}
 
-//     print(">>> Executing Test-2 >>>")
-//     equations = [["a", "b"], ["b", "c"], ["bc", "cd"]]
-//     values = [1.5, 2.5, 5.0]
-//     queries = [["a", "c"], ["c", "b"], ["bc", "cd"], ["cd", "bc"]]
-//     output = [3.75000, 0.40000, 5.00000, 0.20000]
-//     ans = calcEquation(equations, values, queries)
-//     assert ans == output
-
-//     print(">>> Executing Test-3 >>>")
-//     equations = [["a", "b"]]
-//     values = [0.5]
-//     queries = [["a", "b"], ["b", "a"], ["a", "c"], ["x", "y"]]
-//     output = [0.50000, 2.00000, -1.00000, -1.00000]
-//     ans = calcEquation(equations, values, queries)
-//     assert ans == output
-
-
-if __name__ == "__main__":
-    cli_main()

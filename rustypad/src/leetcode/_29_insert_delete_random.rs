@@ -59,66 +59,74 @@ At most 2 * 105 calls in total will be made to insert, remove, and getRandom.
 There will be at least one element in the data structure when getRandom is called.
 
 
-
-import random
-from typing import List, Dict
-from collections import defaultdict
-
-
-class RandomizedCollection:
-    def __init__(self) -> None:
-        """
-        - For multiset, create a dictionary with item and list
-        - Create another arr to store the value, useful for getRandom in O(1) time
-        """
-        self.arr = []  # type: List[int]
-        self.multiset = defaultdict(list)  # type: Dict[int, List]
-
-    def insert(self, val: int) -> bool:
-        """
-        Inserts an item val into the multiset, even if the item is already present.
-        Returns true if the item is not present, false otherwise.
-
-        """
-        present = val not in self.multiset
-        # Create value in arr if not present and save index
-        self.arr.append(val)
-        self.multiset[val].append(len(self.arr) - 1)
-        return present
-
-    def remove(self, val: int) -> bool:
-        """
-        Removes an item val from the multiset if present. 
-        Returns true if the item is present, false otherwise. 
-        
-        Note that if val has multiple occurrences in the multiset, we only 
-        remove one of them.
-
-        """
-        present = val in self.multiset
-        if not present:
-            return False
-
-        # Pop index from multiset and remove
-        index = self.multiset[val].pop()
-        # Swap with the last element of the arr, and remove last
-        last_idx = len(self.arr) - 1
-        self.arr[index], self.arr[last_idx] = self.arr[last_idx], self.arr[index]
-        self.arr.pop()
-        return present
-
-    def getRandom(self) -> int:
-        return random.choice(self.arr)
-
-
-def main():
-    func = ["insert", "insert", "insert", "getRandom", "remove", "getRandom"]
-    rc = RandomizedCollection()
-    output = [getattr(rc, f) for f in func]
-    print(output)
-
-
-if __name__ == "__main__":
-    main()
-
  */
+
+use std::{collections::HashMap, mem::swap};
+
+
+#[derive(Default, Clone)]
+struct RandomizedCollection<'a> {
+    arr: Vec<&'a str>,
+    multiset: HashMap<i32, Vec<i32>>
+}
+
+impl<'a> RandomizedCollection<'a> {
+    /// - For multiset, create a dictionary with item and list
+    /// - Create another arr to store the value, useful for getRandom in O(1) time
+    fn new(arr: Vec<&str>) -> Self {
+        let multiset = HashMap::new();
+        RandomizedCollection { arr, multiset}
+    }
+    
+    /// Inserts an item val into the multiset, even if the item is already present.
+    /// Returns true if the item is not present, false otherwise.
+    fn insert(&self, val: i32) -> bool {
+
+        let present = self.multiset.contains_key(&val);
+        // # Create value in arr if not present and save index
+        // self.arr.append(val)
+        // self.multiset[val].append(len(self.arr) - 1)
+        present
+    }
+        
+    /// Removes an item val from the multiset if present. 
+    /// Returns true if the item is present, false otherwise. 
+        
+    /// Note that if val has multiple occurrences in the multiset, we only remove one of them.
+
+    fn remove(&self, val: i32) -> bool {
+
+        let present = self.multiset.contains_key(&val);
+        if !present {
+            return false;
+        }
+    
+        // Pop index from multiset and remove
+        let index = self.multiset[&val].pop().unwrap();
+        // Swap with the last element of the arr, and remove last
+        let last_idx = self.arr.len() - 1;
+        swap(&mut self.arr[index as usize], &mut self.arr[last_idx]);
+        self.arr.pop();
+        
+        present
+    }
+        
+    fn getRandom(&self) -> i32 {
+        // let x = self.arr.choose(&mut rand::thread_rng()).unwrap();
+        // *x
+        todo!()
+    }
+
+
+}    
+
+
+#[test]
+fn test() {
+    let func = vec!["insert", "insert", "insert", "getRandom", "remove", "getRandom"];
+    let rc = RandomizedCollection::new(func);
+    // output = [getattr(rc, f) for f in func]
+    // println!(output)
+}
+
+

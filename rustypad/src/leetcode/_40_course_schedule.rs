@@ -35,56 +35,72 @@ prerequisites[i].length == 2
 0 <= ai, bi < numCourses
 All the pairs prerequisites[i] are unique.
 
-
-
-def canFinish(numCourses: int, prerequisites: List) -> bool:
-    # Build graph and dfs
-    visited = [0] * numCourses
-    graph = defaultdict(list)
-    for n1, n2 in prerequisites:
-        graph[n1].append(n2)
-
-    # Iterate for every disjoint node
-    for i in range(numCourses):
-        if visited[i] == 0 and not dfs(i, graph, visited):
-            return False
-
-    return True
-
-
-def dfs(node: int, graph: Dict[int, List[int]], visited: Set) -> bool:
-    """
-    - For dfs Mark node visited[node] = -1 to look for cycle
-    - Time complexity: O(V + E)  # For directed edge
-    """
-    # If cycle detected
-    if visited[node] == -1:
-        return False
-
-    # if it is done visted, then do not visit again
-    if visited[node] == 1:
-        return True
-
-    visited[node] = -1
-
-    for child in graph[node]:
-        if not dfs(child, graph, visited):
-            return False
-
-    visited[node] = 1
-    return True
-
-
-def cli_main():
-    numCourses = 2
-    prerequisites = [[1, 0]]
-    ans = canFinish(numCourses, prerequisites)
-    assert ans
-
-    numCourses = 2
-    prerequisites = [[1, 0], [0, 1]]
-    ans = canFinish(numCourses, prerequisites)
-    assert not ans
-
-
  */
+struct Solution;
+use std::collections::HashMap;
+
+type Graph = HashMap<i32, Vec<i32>>;
+
+
+impl Solution {
+    fn can_finish(num_courses: i32, prerequisites: Vec<[i32; 2]>) -> bool {
+        // Build graph and dfs
+        let visited = vec![0; num_courses as usize];
+        let mut graph: HashMap<i32, Vec<i32>> = HashMap::new();
+        for preq in prerequisites {
+            let (n1, n2) = (preq[0], preq[1]);
+            graph[&n1].push(n2);
+        }
+
+        // Iterate for every disjoint node
+        for i in 0..num_courses {
+            if visited[i as usize] == 0 && !Solution::dfs(i as usize, graph, visited) {
+                return false;
+            }
+        }
+
+        true
+    }
+    
+    /// - For dfs Mark node visited[node] = -1 to look for cycle
+    /// - Time complexity: O(V + E)  # For directed edge
+    fn dfs(node: usize, graph: Graph, visited: Vec<i32>) -> bool {
+        // If cycle detected
+        if !visited.is_empty() && visited[node] == -1 {
+            return false;
+        }
+       
+        // if it is done visted, then do not visit again
+        if !visited.is_empty() && visited[node] == 1 {
+            return true;
+        }
+       
+        visited[node] = -1;
+        let childeren = graph[&(node as i32)];
+        for child in graph[&(node as i32)] {
+            if !Solution::dfs(child as usize, graph, visited) {
+                return false;
+            }
+        } 
+        visited[node] = 1;
+        return true
+    }
+
+
+}
+
+
+fn test1() {
+    let numCourses = 2;
+    let prerequisites = vec![[1, 0]];
+    let ans = Solution::can_finish(numCourses, prerequisites);
+    assert_eq!(ans, true);
+} 
+
+fn test2() {
+    let numCourses = 2;
+    let prerequisites = vec![[1, 0], [0, 1]];
+    let ans = Solution::can_finish(numCourses, prerequisites);
+    assert_eq!(ans, false);
+} 
+

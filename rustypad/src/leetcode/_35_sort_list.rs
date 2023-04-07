@@ -29,8 +29,6 @@ if __name__ == "__main__":
 
  */
 
-use std::marker::PhantomData;
-
 struct Solution;
 
 struct ListNode {

@@ -27,33 +27,39 @@ Constraints:
 intervals[i].length == 2
 0 <= starti <= endi <= 104
 
-from typing import List
-
-
-def merge_interval(intervals: List[List]) -> List[List]:
-    # Sort by start time
-    intervals = sorted(intervals, key=lambda x: x[0])
-    ans = [intervals[0]]
-    # check if last end-time > current start_time; then merge into mergelist
-    for start, end in intervals[1:]:
-        if start <= ans[-1][1]:
-            last_start, last_end = ans.pop()
-            ans.append([last_start, max(end, last_end)])
-        else:
-            ans.append([start, end])
-    return ans
-
-
-def main():
-    intervals = [[1, 3], [2, 6], [8, 10], [15, 18]]
-    assert merge_interval(intervals) == [[1, 6], [8, 10], [15, 18]]
-
-    intervals = [[1, 4], [4, 5]]
-    assert merge_interval(intervals) == [[1, 5]]
-
-
-if __name__ == "__main__":
-    main()
-
  */
 
+
+struct Solution;
+
+
+impl Solution {
+
+    fn merge_interval(mut intervals: Vec<[i32; 2]>) -> Vec<[i32; 2]>{
+        let mut ans: Vec<[i32; 2]> = Vec::new();
+        intervals.sort_unstable_by(|a, b| a[0].cmp(&b[0]));
+        ans.push(intervals[0]);
+        // check if last end-time > current start_time; then merge into mergelist
+        for item in intervals.iter().skip(1) {
+            let start = item[0];
+            let end = item[1];
+            let last = ans.last().unwrap();
+            if start <= last[1] {
+                ans.push([last[0], end.max(last[1])]);
+            }
+                
+            else {
+                ans.push([start, end])
+            }
+                
+        }
+        ans
+    }
+}
+
+#[test]
+fn test() {
+    let intervals = vec![[1, 3], [2, 6], [8, 10], [15, 18]];
+    assert_eq!(Solution::merge_interval(intervals), vec![[1, 6], [8, 10], [15, 18]]);
+
+}

@@ -40,89 +40,125 @@ The optimal path with no stops from city 0 to 2 is marked in red and has cost 50
  */
 
 
-// # Create a distance map with initialized to infinty
-// # BFS till k depth and update the distance
-// # Finally return distance of target
-// def findCheapestPrice(
-//     n: int,
-//     flights: List[List[int]],
-//     src: int, dst: int, k: int
-// ) -> int:
-//     # Build weighted graph
-//     graph = defaultdict(dict)
-//     for s, d, w in flights:
-//         graph[s][d] = w
+use std::collections::{HashMap, BinaryHeap};
 
-//     distance = [float("inf")] * n
-//     distance[src] = 0
-//     __q = deque([(0, src)])
-//     while __q and k > -1:
-//         q_size = len(__q)
-//         while q_size:
-//             ndist, node = __q.popleft()
+struct Solution;
 
-//             for conn, w in graph[node].items():
-//                 # If distance from source is 
-//                 cdist = w + ndist
-//                 if cdist < distance[conn]:
-//                     distance[conn] = cdist
-//                     __q.append((cdist, conn))
+impl Solution {
+    /// Create a distance map with initialized to infinty
+    /// BFS till k depth and update the distance
+    /// Finally return distance of target
+    fn find_cheapest_price(
+        n: i32, flights: Vec<Vec<i32>>,
+        src: i32, dst: i32, k: i32
+    ) -> i32 {
+        // Build weighted graph
+        // graph = defaultdict(dict)
+        // for s, d, w in flights:
+        //     graph[s][d] = w
+        let mut distance: Vec<i32> = vec![0; n as usize];
+        distance[src as usize] = 0;
+        let mut __q: BinaryHeap<(i32, i32)> = BinaryHeap::new();
+        __q.push((0, src));
+        loop {
+            break;
+        }
+        // __q = deque([(0, src)])
+        // while __q and k > -1:
+        //     q_size = len(__q)
+        //     while q_size:
+        //         ndist, node = __q.popleft()
 
-//             q_size -= 1
+        //         for conn, w in graph[node].items():
+        //             # If distance from source is 
+        //             cdist = w + ndist
+        //             if cdist < distance[conn]:
+        //                 distance[conn] = cdist
+        //                 __q.append((cdist, conn))
 
-//         k -= 1
+        //         q_size -= 1
 
-//     return distance[dst]
+        //     k -= 1
 
-
-// def findCheapestPriceWithMinHeap(
-//     n: int,
-//     flights: List[List[int]],
-//     src: int, dst: int, k: int
-// ) -> int:
-//     # Build weighted graph
-//     graph = defaultdict(dict)
-//     for s, d, w in flights:
-//         graph[s][d] = w
-
-//     distance = [float("inf")] * n
-//     distance[src] = 0
-//     __q = [(0, 0, src)]  # min-heap (distance, depth, node)
-//     while __q:
-//         ndist, depth, node = heapq.heappop(__q)
-
-//         for conn, w in graph[node].items():
-//             # If distance from source is less than prev distance
-//             cdist = w + ndist
-//             if cdist < distance[conn] and depth <= k:
-//                 distance[conn] = cdist
-//                 heapq.heappush(__q, (cdist, depth + 1, conn))
-
-//     return distance[dst]
+        distance[dst as usize]
+    }
+        
 
 
-// def cli_main():
-//     print(">>> Test-1 >>>")
-//     N = 4
-//     flights = [[0, 1, 100], [1, 2, 100], [2, 0, 100], [1, 3, 600], [2, 3, 200]]
-//     src, dst, k = 0, 3, 1
-//     res = findCheapestPriceWithMinHeap(N, flights, src, dst, k)
-//     assert res == 700
+    fn find_cheapest_price_with_min_heap(
+        n: i32,
+        flights: Vec<Vec<i32>>,
+        src: i32, dst: i32, k: i32
+    ) -> i32 {
+        // Build weighted graph
+        let mut distance: Vec<i32> = vec![0; n as usize];
+        distance[src as usize] = 0;
 
-//     print(">>> Test-2 >>>")
-//     N = 3
-//     flights = [[0, 1, 100], [1, 2, 100], [0, 2, 500]]
-//     src, dst, k = 0, 2, 1
-//     res = findCheapestPriceWithMinHeap(N, flights, src, dst, k)
-//     assert res == 200
-    
-//     print(">>> Test-3 >>>")
-//     N = 3
-//     flights = [[0, 1, 100], [1, 2, 100], [0, 2, 500]]
-//     src, dst, k = 0, 2, 0
-//     res = findCheapestPriceWithMinHeap(N, flights, src, dst, k)
-//     assert res == 500
+        // graph = defaultdict(dict)
+        // for s, d, w in flights:
+        //     graph[s][d] = w
 
+        // distance = [float("inf")] * n
+        // distance[src] = 0
+        // __q = [(0, 0, src)]  # min-heap (distance, depth, node)
+        // while __q:
+        //     ndist, depth, node = heapq.heappop(__q)
 
-// if __name__ == "__main__":
-//     cli_main()
+        //     for conn, w in graph[node].items():
+        //         # If distance from source is less than prev distance
+        //         cdist = w + ndist
+        //         if cdist < distance[conn] and depth <= k:
+        //             distance[conn] = cdist
+        //             heapq.heappush(__q, (cdist, depth + 1, conn))
+
+        distance[dst as usize]    
+
+    }
+}
+
+#[test]
+fn test1() {
+    println!(">>> Test-1 >>>");
+    let n = 4;
+    let flights: Vec<Vec<i32>> = vec![
+        vec![0, 1, 100], 
+        vec![1, 2, 100], 
+        vec![2, 0, 100], 
+        vec![1, 3, 600], 
+        vec![2, 3, 200]
+    ];
+    let (src, dst, k) = (0, 3, 1);
+    let res = Solution::find_cheapest_price_with_min_heap(n, flights, src, dst, k);
+    assert_eq!(res, 700);
+
+}
+
+#[test]
+fn test2(){
+    println!(">>> Test-2 >>>");
+    let n = 3;
+    let flights = vec![
+        vec![0, 1, 100], 
+        vec![1, 2, 100], 
+        vec![0, 2, 500]
+    ];
+    let (src, dst, k) = (0, 2, 1);
+    let res = Solution::find_cheapest_price_with_min_heap(n, flights, src, dst, k);
+    assert_eq!(res, 200);
+
+}
+
+#[test]
+fn test3() {
+    println!(">>> Test-3 >>>");
+    let n = 3;
+    let flights = vec![
+        vec![0, 1, 100], 
+        vec![1, 2, 100], 
+        vec![0, 2, 500]
+    ];
+    let (src, dst, k) = (0, 2, 0);
+    let res = Solution::find_cheapest_price_with_min_heap(n, flights, src, dst, k);
+    assert_eq!(res, 500);
+
+}
