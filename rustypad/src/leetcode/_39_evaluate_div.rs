@@ -51,7 +51,7 @@ use std::collections::{HashMap, BinaryHeap, HashSet};
 
 struct Solution;
 
-type GraphType = HashMap<String, HashMap<i32, f32>>;
+type GraphType = HashMap<String, Vec<(&str, f32)>>;
 
 impl Solution {
     
@@ -130,7 +130,7 @@ fn test2() {
 
 #[test]
 fn test3() {
-    println!(">>> Executing Test-3 >>>")
+    println!(">>> Executing Test-3 >>>");
     let equations = vec![["a", "b"]];
     let values = vec![0.5];
     let queries = vec![["a", "b"], ["b", "a"], ["a", "c"], ["x", "y"]];
