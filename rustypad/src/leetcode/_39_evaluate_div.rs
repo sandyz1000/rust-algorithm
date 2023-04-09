@@ -46,12 +46,12 @@ Output: [0.50000,2.00000,-1.00000,-1.00000]
 
  */
 
-use std::collections::{HashMap, BinaryHeap, HashSet};
+use std::collections::{HashMap, VecDeque, HashSet};
 
 
 struct Solution;
 
-type GraphType = HashMap<String, Vec<(&str, f32)>>;
+type Graph = HashMap<String, Vec<(String, f32)>>;
 
 impl Solution {
     
@@ -62,80 +62,112 @@ impl Solution {
         values: Vec<f32>,
         queries: Vec<[&str; 2]>
     ) -> Vec<f32> {
-        // graph = defaultdict(dict)
-        // for node, weight in zip(equations, values):
-        //     graph[node[0]][node[1]] = weight
-        //     graph[node[1]][node[0]] = 1.0 / weight
-    
+        let mut graph: Graph = HashMap::new();
+        for (node, weight) in equations.iter().zip(values) {
+            let (source, dest) = (node[0], node[1]);
+            match graph.get_mut(source) {
+                Some(x) => x.push((dest.to_owned(), weight)),
+                None => {
+                    let v = vec![(dest.to_owned(), weight)];
+                    graph.insert(source.to_owned(), v);
+                }
+            }
+
+            match graph.get_mut(dest) {
+                Some(x) => x.push((source.to_owned(), (1.0 / weight))),
+                None => {
+                    let v = vec![(source.to_owned(), 1.0 / weight)];
+                    graph.insert(dest.to_owned(), v);
+                }
+            }
+        }
+        
         let mut ans: Vec<f32> = Vec::new();
-        // for dividend, divisor in queries:
-        //     if dividend not in graph or divisor not in graph:
-        //         ans.append(-1.0)
-        //     elif dividend == divisor:
-        //         ans.append(1.0)
-        //     else:
-        //         ans.append(bfs(graph, dividend, divisor))
+        for edge in queries.iter() {
+            let (dividend, divisor) = (edge[0], edge[1]);
+            if !graph.contains_key(dividend) || !graph.contains_key(divisor) {
+                ans.push(-1.0);
+            }
+            else if dividend == divisor {
+                ans.push(1.0);
+            } 
+            else {
+                let res = Solution::bfs(&graph, dividend, divisor);
+                ans.push(res);
+            }
+        }
             
         return ans
 
     }
     
-    fn bfs(graph: GraphType, source: i32, target: i32) -> i32 {
-        let mut __q: BinaryHeap<(i32, i32)> = BinaryHeap::new();
-        let mut visited: HashSet<i32> = HashSet::new();
-        __q.push((source, 1));
+    fn bfs(graph: &Graph, source: &str, target: &str) -> f32 {
+        let mut __q: VecDeque<(&str, f32)> = VecDeque::new();
+        let mut visited: HashSet<&str> = HashSet::new();
+        __q.push_back((source, 1.0));
         visited.insert(source);
-        
-        // while __q:
-        //     node, prod = __q.popleft()
-        //     // If target reached
-        //     if node == target:
-        //         return prod
+        while !__q.is_empty() {
+            let (node, prod) = __q.pop_front().unwrap();
+            // If target reached
+            if node == target {
+                return prod;
+            }
             
-        //     // For each divisor and quotient
-        //     for ch, value in graph[node].items():
-        //         if ch not in visited:
-        //             visited.add(ch)
-        //             __q.append((ch, value * prod))
-    
-        return -1
+            // For each divisor and quotient
+            let childrens = graph.get(node.into()).unwrap().iter();
+            for (ch, value) in childrens {
+                if !visited.contains(ch.as_str()) {
+                    visited.insert(ch.as_str());
+                    __q.push_back((ch, value * prod));
+                }
+            }
+
+        }
+        
+        -1.0
 
     }
     
 }
 
-#[test]
-fn test1() {
-    println!(">>> Executing Test-1 >>>");
-    // a / c = (a / b) * (b / c)
-    let equations = vec![["a", "b"], ["b", "c"]];
-    let values = vec![2.0, 3.0];
-    let queries = vec![["a", "c"], ["b", "a"], ["a", "e"], ["a", "a"], ["x", "x"]];
-    let output = vec![6.00000, 0.50000, -1.00000, 1.00000, -1.00000];
-    let ans = Solution::calc_equation(equations, values, queries);
-    assert_eq!(ans, output);
-
-}
-
-#[test]
-fn test2() {
-    println!(">>> Executing Test-2 >>>");
-    let equations = vec![["a", "b"], ["b", "c"], ["bc", "cd"]];
-    let values = vec![1.5, 2.5, 5.0];
-    let queries = vec![["a", "c"], ["c", "b"], ["bc", "cd"], ["cd", "bc"]];
-    let output = vec![3.75000, 0.40000, 5.00000, 0.20000];
-    let ans = Solution::calc_equation(equations, values, queries);
-    assert_eq!(ans, output);
-}
-
-#[test]
-fn test3() {
-    println!(">>> Executing Test-3 >>>");
-    let equations = vec![["a", "b"]];
-    let values = vec![0.5];
-    let queries = vec![["a", "b"], ["b", "a"], ["a", "c"], ["x", "y"]];
-    let output = vec![0.50000, 2.00000, -1.00000, -1.00000];
-    let ans = Solution::calc_equation(equations, values, queries);
-    assert_eq!(ans, output);
+#[cfg(test)]
+mod test {
+    use super::Solution;
+    
+    #[test]
+    fn test1() {
+        println!(">>> Executing Test-1 >>>");
+        // a / c = (a / b) * (b / c)
+        let equations = vec![["a", "b"], ["b", "c"]];
+        let values = vec![2.0, 3.0];
+        let queries = vec![["a", "c"], ["b", "a"], ["a", "e"], ["a", "a"], ["x", "x"]];
+        let output = vec![6.00000, 0.50000, -1.00000, 1.00000, -1.00000];
+        let ans = Solution::calc_equation(equations, values, queries);
+        assert_eq!(ans, output);
+    
+    }
+    
+    #[test]
+    fn test2() {
+        println!(">>> Executing Test-2 >>>");
+        let equations = vec![["a", "b"], ["b", "c"], ["bc", "cd"]];
+        let values = vec![1.5, 2.5, 5.0];
+        let queries = vec![["a", "c"], ["c", "b"], ["bc", "cd"], ["cd", "bc"]];
+        let output = vec![3.75000, 0.40000, 5.00000, 0.20000];
+        let ans = Solution::calc_equation(equations, values, queries);
+        assert_eq!(ans, output);
+    }
+    
+    #[test]
+    fn test3() {
+        println!(">>> Executing Test-3 >>>");
+        let equations = vec![["a", "b"]];
+        let values = vec![0.5];
+        let queries = vec![["a", "b"], ["b", "a"], ["a", "c"], ["x", "y"]];
+        let output = vec![0.50000, 2.00000, -1.00000, -1.00000];
+        let ans = Solution::calc_equation(equations, values, queries);
+        assert_eq!(ans, output);
+    }
+    
 }
 

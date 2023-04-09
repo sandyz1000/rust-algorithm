@@ -73,7 +73,7 @@ struct RandomizedCollection<'a> {
 impl<'a> RandomizedCollection<'a> {
     /// - For multiset, create a dictionary with item and list
     /// - Create another arr to store the value, useful for getRandom in O(1) time
-    fn new(arr: Vec<&str>) -> Self {
+    fn new(arr: Vec<&'a str>) -> Self {
         let multiset = HashMap::new();
         RandomizedCollection { arr, multiset}
     }
@@ -94,7 +94,7 @@ impl<'a> RandomizedCollection<'a> {
         
     /// Note that if val has multiple occurrences in the multiset, we only remove one of them.
 
-    fn remove(&self, val: i32) -> bool {
+    fn remove(&mut self, val: i32) -> bool {
 
         let present = self.multiset.contains_key(&val);
         if !present {
@@ -102,16 +102,19 @@ impl<'a> RandomizedCollection<'a> {
         }
     
         // Pop index from multiset and remove
-        let index = self.multiset[&val].pop().unwrap();
-        // Swap with the last element of the arr, and remove last
-        let last_idx = self.arr.len() - 1;
-        swap(&mut self.arr[index as usize], &mut self.arr[last_idx]);
-        self.arr.pop();
+        if let Some(item) = self.multiset.get_mut(&val) {
+            let index: usize = item.pop().unwrap() as usize;
+            // Swap with the last element of the arr, and remove last
+            let mut x = self.arr[index as usize];
+            let mut y = self.arr[self.arr.len() - 1];
+            swap(&mut x, &mut y);
+            self.arr.pop();
+        }
         
         present
     }
         
-    fn getRandom(&self) -> i32 {
+    fn get_random(&self) -> i32 {
         // let x = self.arr.choose(&mut rand::thread_rng()).unwrap();
         // *x
         todo!()

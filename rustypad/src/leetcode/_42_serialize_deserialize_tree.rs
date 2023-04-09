@@ -41,11 +41,25 @@ struct TreeNode {
 }
 
 
-struct Codec;
+struct Solution;
 
-impl Codec {
+
+impl Solution {
     /// Encodes a tree to a single string
-    fn serialize(&self, root: TreeNode) -> &str {
+    fn serialize<'q>(root: TreeNode) -> &'q str {
+
+        /// Output: 1, 2, null, null, 3, 4, null, null, 5, null, null
+        fn _preorder(root: TreeNode, ans: Vec<i64>) {
+            todo!()
+            // if root is None:
+            //     ans.append(None)
+            //     return
+        
+            // ans.append(root.val)
+            // _preorder(root.left, ans)
+            // _preorder(root.right, ans)
+
+        }
         //      #  Serialize tree with pre-order traversal
 //      def _preorder(root: TreeNode, ans: List):
 //          """
@@ -66,27 +80,31 @@ impl Codec {
     }
 
     /// Decodes your encoded data to tree.
-    fn deserialize(&self, data: &str) -> TreeNode {
-        todo!()
+    fn deserialize(data: &str) -> TreeNode {
+        /// De-Serialize the pre-order list to tree node
+        fn _preorder(data: Vec<i64>) -> TreeNode {
+            todo!()
+            // if data[0] == "None" {
+            //     data.pop(0)
+            //     return None
+            // }
+            // node = TreeNode(int(data.pop(0)))
+            // node.left = _preorder(data)
+            // node.right = _preorder(data)
+            // return node
 
-//      # De-Serialize the pre-order list to tree node
-//      def _preorder(data: List) -> TreeNode:
-//          if data[0] == "None":
-//              data.pop(0)
-//              return None
-//          node = TreeNode(int(data.pop(0)))
-//          node.left = _preorder(data)
-//          node.right = _preorder(data)
-//          return node
-
-//      data = data.split(',')
-//      root = _preorder(data)
-//      return root
-
+        }
+            todo!()
+    
+    //      data = data.split(',')
+    //      root = _preorder(data)
+    //      return root
     }
-
+    
+         
 
 }
+
 
 #[test]
 fn test() {

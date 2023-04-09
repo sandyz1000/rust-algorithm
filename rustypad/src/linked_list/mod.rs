@@ -1,3 +1,5 @@
+mod doubly_linked_list;
+
 #[derive(PartialEq, Eq, Clone, Debug)]
 struct ListNode {
     pub val: i32,

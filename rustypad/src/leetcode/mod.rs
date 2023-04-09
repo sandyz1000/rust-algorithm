@@ -12,7 +12,7 @@ mod _11_pair_people;
 mod _12_substr_with_concat;
 mod _13_first_last_pos;
 mod _14_word_search;
-mod _15_topic_occurance;
+mod _15_3sum_closest;
 mod _16_word_ladder;
 mod _17_prim_test;
 mod _18_graph_bipartite;
@@ -60,7 +60,7 @@ mod _59_min_cost_connect_points;
 mod _60_add_two_number;
 mod _61_two_sum;
 mod _63_g_depth_first_search;
-mod _62_g_breadth_first_search
+mod _62_g_breadth_first_search;
 mod _64_linked_list;
 mod _65_graph;
-mod _66_reverse_linked_list; copy;
+mod _66_reverse_linked_list;

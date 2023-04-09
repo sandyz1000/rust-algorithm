@@ -35,9 +35,9 @@ struct Solution;
 
 impl Solution {
 
-    fn merge_interval(mut intervals: Vec<[i32; 2]>) -> Vec<[i32; 2]>{
+    fn merge_interval(mut intervals: Vec<[i32; 2]>) -> Vec<[i32; 2]> {
         let mut ans: Vec<[i32; 2]> = Vec::new();
-        intervals.sort_unstable_by(|a, b| a[0].cmp(&b[0]));
+        intervals.sort_by(|a, b| a[0].cmp(&b[0]));
         ans.push(intervals[0]);
         // check if last end-time > current start_time; then merge into mergelist
         for item in intervals.iter().skip(1) {
@@ -47,11 +47,9 @@ impl Solution {
             if start <= last[1] {
                 ans.push([last[0], end.max(last[1])]);
             }
-                
             else {
-                ans.push([start, end])
-            }
-                
+                ans.push([start, end]);
+            }   
         }
         ans
     }

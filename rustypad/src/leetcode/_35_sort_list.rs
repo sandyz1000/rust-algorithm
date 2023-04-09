@@ -29,7 +29,14 @@ if __name__ == "__main__":
 
  */
 
+use crate::{linked_list::ListLink, list};
+
+
 struct Solution;
+
+// list!();
+
+
 
 struct ListNode {
     val: i32,
