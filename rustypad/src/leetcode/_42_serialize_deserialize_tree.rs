@@ -34,71 +34,96 @@ The number of nodes in the tree is in the range [0, 104].
 
  */
 
+use std::cell::{RefCell, Ref};
+use std::rc::Rc;
+
+type TreeLink = Option<Rc<RefCell<TreeNode>>>;
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct TreeNode {
     val: i32,
-    left: Option<Box<TreeNode>>,
-    right: Option<Box<TreeNode>>,
+    left: TreeLink,
+    right: TreeLink,
 }
+
+trait TreeBuilder {
+    fn leaf(val: i32) -> TreeLink {
+        Some(Rc::new(RefCell::new(
+            TreeNode {val, left: None, right: None}
+        )))
+    }
+
+    fn node(val: i32, left: TreeLink, right: TreeLink) -> TreeLink {
+        Some(Rc::new(RefCell::new(
+            TreeNode {val, left, right}
+        )))
+    }
+}
+
+impl TreeBuilder for TreeLink {}
 
 
 struct Solution;
 
 
 impl Solution {
-    /// Encodes a tree to a single string
-    fn serialize<'q>(root: TreeNode) -> &'q str {
-
-        /// Output: 1, 2, null, null, 3, 4, null, null, 5, null, null
-        fn _preorder(root: TreeNode, ans: Vec<i64>) {
-            todo!()
-            // if root is None:
-            //     ans.append(None)
-            //     return
-        
-            // ans.append(root.val)
-            // _preorder(root.left, ans)
-            // _preorder(root.right, ans)
-
+    /// Output: 1, 2, null, null, 3, 4, null, null, 5, null, null
+    fn serialize_preorder(root: &TreeLink, ans: &mut Vec<i32>) {
+        match root {
+            Some(node) => {
+                let node = node.borrow();
+                let val = node.val;
+                ans.push(val);
+                Solution::serialize_preorder(&node.left, ans);
+                Solution::serialize_preorder(&node.right, ans);
+            }
+            None => ans.push(-1),
         }
-        //      #  Serialize tree with pre-order traversal
-//      def _preorder(root: TreeNode, ans: List):
-//          """
-//          Output: 1, 2, null, null, 3, 4, null, null, 5, null, null
-//          """
-//          if root is None:
-//              ans.append(None)
-//              return
+    }
 
-//          ans.append(root.val)
-//          _preorder(root.left, ans)
-//          _preorder(root.right, ans)
+    /// Encodes a tree to a single string
+    /// Serialize tree with pre-order traversal
+    #[allow(dead_code)]
+    fn serialize(root: TreeLink) -> String {
+        
+        let mut ans: Vec<i32> = vec![];
+        Solution::serialize_preorder(&root, &mut ans);
+        
+        let serialize_str = format!("{:?}", ans);
+        serialize_str
+    }
 
-//      ans = []
-//      _preorder(root, ans)
-//      return ",".join([str(node) for node in ans])
-        todo!()
+    /// De-Serialize the pre-order list to tree node
+    fn deserialize_preorder(data: &mut Vec<&str>, ans: &mut TreeLink) {
+        /* 
+        // implementation of index_of in a Vec
+        // https://stackoverflow.com/questions/26243025/how-to-remove-an-element-from-a-vector-given-the-element
+        let index = xs.iter().position(|x| *x == some_x).unwrap();
+        xs.remove(index);
+        
+         */
+        if data[0] == "null" {
+            data.remove(0);
+            return;
+        }
+        let x = data.remove(0).parse::<i32>().unwrap();
+        *ans = TreeLink::leaf(x);
+        if let Some(refnode) = ans {
+            let mut node = refnode.borrow_mut();
+            Solution::deserialize_preorder(data, &mut node.left);
+            Solution::deserialize_preorder(data, &mut node.right);
+        }
+
     }
 
     /// Decodes your encoded data to tree.
-    fn deserialize(data: &str) -> TreeNode {
-        /// De-Serialize the pre-order list to tree node
-        fn _preorder(data: Vec<i64>) -> TreeNode {
-            todo!()
-            // if data[0] == "None" {
-            //     data.pop(0)
-            //     return None
-            // }
-            // node = TreeNode(int(data.pop(0)))
-            // node.left = _preorder(data)
-            // node.right = _preorder(data)
-            // return node
-
-        }
-            todo!()
+    #[allow(dead_code)]
+    fn deserialize(data: String) -> TreeLink {
     
-    //      data = data.split(',')
-    //      root = _preorder(data)
-    //      return root
+        let mut data: Vec<&str> = data.split(',').collect();
+        let mut ans: TreeLink = None;
+        Solution::deserialize_preorder(&mut data, &mut ans);
+        ans
     }
     
          
@@ -114,4 +139,3 @@ fn test() {
     //  ans = deser.deserialize(ser.serialize(root))
 }
 
- 

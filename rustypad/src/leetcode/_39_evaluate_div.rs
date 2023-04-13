@@ -57,6 +57,7 @@ impl Solution {
     
     /// build graph of equations and values
     /// iterate the queries for each src and dest and return the ans
+    #[allow(dead_code)]
     fn calc_equation(
         equations: Vec<[&str; 2]>,
         values: Vec<f32>,
@@ -101,6 +102,7 @@ impl Solution {
 
     }
     
+    #[allow(dead_code)]
     fn bfs(graph: &Graph, source: &str, target: &str) -> f32 {
         let mut __q: VecDeque<(&str, f32)> = VecDeque::new();
         let mut visited: HashSet<&str> = HashSet::new();

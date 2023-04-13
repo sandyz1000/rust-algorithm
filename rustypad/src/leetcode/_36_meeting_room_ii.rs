@@ -34,6 +34,7 @@ use std::cmp::Reverse;
 
 
 impl Solution {
+    #[allow(dead_code)]
     fn no_of_meeting_rooms(mut intervals: Vec<[i32; 2]>) -> i32 {
         let mut meeting_room = 0;
         // Sort with start time

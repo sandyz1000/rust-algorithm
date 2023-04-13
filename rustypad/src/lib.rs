@@ -3,7 +3,7 @@
 extern crate quickcheck_macros;
 
 mod binary_search_tree;
-// mod binary_tree;
+mod binary_tree;
 // mod bloom_filter;
 mod btree;
 mod linked_list;

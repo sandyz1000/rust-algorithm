@@ -45,4 +45,76 @@ Constraints:
 At most 2 * 105 calls will be made to get and put.
 
  */
+#![allow(unused_variables)]
+#![allow(dead_code)]
 
+
+use std::collections::HashMap;
+use std::cell::RefCell;
+
+
+#[derive(Default, Debug)]
+struct  Node;
+
+#[derive(Default, Debug)]
+struct List;
+
+type MapType = HashMap<i32, Option<RefCell<Node>>>;
+
+#[derive(Default, Debug)]
+struct LRUCache {
+    hash_map: MapType,
+    list: List,
+    length: usize,
+    capacity: usize,
+}
+
+impl LRUCache {
+    
+    fn new(capacity: i32) -> Self {
+        // LRUCache {
+
+        // }
+        todo!()
+    }
+
+    #[allow(dead_code)]
+    fn put(&mut self, key: i8, value: i8) {
+        todo!()
+    }
+
+    #[allow(dead_code)]
+    fn get(&self, key: i8) -> i8 {
+        todo!()
+    }
+}
+
+
+ #[test]
+ fn test() {
+     let mut obj = LRUCache::new(2);
+     assert_eq!(obj.get(2), -1);
+     obj.put(2, 6);
+     assert_eq!(obj.get(1), -1);
+     obj.put(1, 5);
+     obj.put(1, 2);
+     assert_eq!(obj.get(1), 2);
+     assert_eq!(obj.get(2), 6);
+ 
+     let mut obj = LRUCache::new(3);
+     obj.put(1, 1);
+     obj.put(2, 2);
+     obj.put(3, 3);
+     obj.put(4, 4);
+     assert_eq!(obj.get(4), 4);
+     assert_eq!(obj.get(3), 3);
+     assert_eq!(obj.get(2), 2);
+     assert_eq!(obj.get(1), -1);
+     obj.put(5, 5);
+     assert_eq!(obj.get(1), -1);
+     assert_eq!(obj.get(2), 2);
+     assert_eq!(obj.get(3), 3);
+     assert_eq!(obj.get(4), -1);
+     assert_eq!(obj.get(5), 5);
+ }
+ 

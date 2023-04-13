@@ -35,6 +35,7 @@ struct Solution;
 
 impl Solution {
 
+    #[allow(dead_code)]
     fn merge_interval(mut intervals: Vec<[i32; 2]>) -> Vec<[i32; 2]> {
         let mut ans: Vec<[i32; 2]> = Vec::new();
         intervals.sort_by(|a, b| a[0].cmp(&b[0]));

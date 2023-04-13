@@ -12,38 +12,44 @@ struct Solution;
 
 type Graph = HashMap<String, Vec<String>>;
 
+/// ### Build final graph from word bucket. 
+/// Connect every word to it's associative word that differ from each other by
+/// one letter. 
+/// This will be useful for graph traversal from source word to dest word
+fn build_final_word_graph(wordg: Graph) -> Graph {
+    let mut final_word_graph: Graph = HashMap::new();
+    for (k, values) in wordg.iter() {
+        let size = values.len();
+        for i in 0..size {
+            for j in i+1..size {
+                let x = final_word_graph.
+                    entry(values[i].clone())
+                    .or_insert(vec![values[j].clone()]);
+
+                x.push(values[j].clone());
+
+                let y = final_word_graph.
+                    entry(values[j].clone())
+                    .or_insert(vec![values[i].clone()]);
+
+                y.push(values[i].clone());
+                
+            }
+        }
+    }
+    final_word_graph
+}
+
 impl Solution {
     
     /// 1. Build a graph with node with same intermediate key form a connection
     /// 2. bfs from start node to dest node
+    #[allow(dead_code)]
     fn word_ladder<'q>(
         begin_word: &'q str, end_word: &'q str, 
         mut word_list: Vec<&'q str>, word_length: usize
     ) -> i32 {
-        fn build_final_word_graph(wordg: Graph) -> Graph {
-            let mut final_word_graph: Graph = HashMap::new();
-            for (k, values) in wordg.iter() {
-                let size = values.len();
-                for i in 0..size {
-                    for j in i+1..size {
-                        let x = final_word_graph.
-                            entry(values[i].clone())
-                            .or_insert(vec![values[j].clone()]);
-
-                        x.push(values[j].clone());
-
-                        let y = final_word_graph.
-                            entry(values[j].clone())
-                            .or_insert(vec![values[i].clone()]);
-
-                        y.push(values[i].clone());
-                        
-                    }
-                }
-            }
-            final_word_graph
-        }
-
+        
         let mut word_graph: Graph = HashMap::new();
         word_list.push(begin_word);
         
@@ -52,7 +58,7 @@ impl Solution {
                 let (x, y) = (&word[..(i as usize)], &word[((i as usize)+1)..]);
 
                 let key = format!("{}${}", x, y);
-
+                
                 let node = {
                     let entry = word_graph.entry(key);
                     entry.or_insert(vec![word.to_string()])
@@ -90,10 +96,11 @@ impl Solution {
 
 #[test]
 fn test() {
+    // TODO: Fix this test cases
     let begin_word = "hit";
     let end_word = "cog";
     let word_list = vec!["hot", "dot", "dog", "lot", "log", "cog"];
     let word_length = word_list[0].len();
     let ans = Solution::word_ladder(begin_word, end_word, word_list, word_length);
-    
+
 }

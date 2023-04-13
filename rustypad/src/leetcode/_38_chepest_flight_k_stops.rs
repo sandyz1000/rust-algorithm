@@ -51,6 +51,7 @@ impl Solution {
     /// Create a distance map with initialized to infinty
     /// BFS till k depth and update the distance
     /// Finally return distance of target
+    #[allow(dead_code)]
     fn find_cheapest_price(n: i32, flights: Vec<(i8, i8, i32)>, src: i8, dst: i8, k: i32) -> i32 {
         // Build weighted graph
         let mut graph: GraphType = HashMap::new();
@@ -95,6 +96,7 @@ impl Solution {
         distance[dst as usize]
     }
 
+    #[allow(dead_code)]
     fn find_cheapest_price_with_min_heap(
         n: i32,
         flights: Vec<(i8, i8, i32)>,

@@ -7,7 +7,7 @@ Note that every word consists of only lowercase English alphabets.
 
  */
 
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::DerefMut};
 
 #[derive(Debug)]
 struct Solution;
@@ -16,6 +16,7 @@ impl Solution {
 
     /// - create a dictionary of word as key and documents index as value
     /// - iterate each word and check if documents >= k then add to result
+    #[allow(dead_code)]
     fn get_top_words(documents: Vec<&str>, k: i32) -> Vec<&str> {
         let mut results: Vec<&str> = Vec::new();
         let mut bow: HashMap<&str, Vec<usize>> = HashMap::new();
@@ -26,6 +27,14 @@ impl Solution {
                     Some(bow_docs) => bow_docs.push(doc_id),
                     None => { bow.insert(token, vec![doc_id]); },
                 }
+
+                // if let Some(bow_docs) = &mut bow.get(token) {
+                //     // bow_docs.push(doc_id).push(doc_id);
+
+                // }
+                // else {
+                //     bow.insert(token, vec![doc_id]);
+                // }
             }
         }
 
