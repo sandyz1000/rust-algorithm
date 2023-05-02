@@ -34,7 +34,7 @@ The number of nodes in the tree is in the range [0, 104].
 
  */
 
-use std::cell::{RefCell, Ref};
+use std::cell::RefCell;
 use std::rc::Rc;
 
 type TreeLink = Option<Rc<RefCell<TreeNode>>>;
@@ -68,16 +68,16 @@ struct Solution;
 
 impl Solution {
     /// Output: 1, 2, null, null, 3, 4, null, null, 5, null, null
-    fn serialize_preorder(root: &TreeLink, ans: &mut Vec<i32>) {
+    fn serialize_preorder(root: &TreeLink, ans: &mut Vec<String>) {
         match root {
             Some(node) => {
                 let node = node.borrow();
                 let val = node.val;
-                ans.push(val);
+                ans.push(val.to_string());
                 Solution::serialize_preorder(&node.left, ans);
                 Solution::serialize_preorder(&node.right, ans);
             }
-            None => ans.push(-1),
+            None => ans.push(String::from("null")),
         }
     }
 
@@ -86,7 +86,7 @@ impl Solution {
     #[allow(dead_code)]
     fn serialize(root: TreeLink) -> String {
         
-        let mut ans: Vec<i32> = vec![];
+        let mut ans: Vec<String> = vec![];
         Solution::serialize_preorder(&root, &mut ans);
         
         let serialize_str = format!("{:?}", ans);
@@ -106,7 +106,7 @@ impl Solution {
             data.remove(0);
             return;
         }
-        let x = data.remove(0).parse::<i32>().unwrap();
+        let x = data.remove(0).parse::<i32>().unwrap_or_default();
         *ans = TreeLink::leaf(x);
         if let Some(refnode) = ans {
             let mut node = refnode.borrow_mut();

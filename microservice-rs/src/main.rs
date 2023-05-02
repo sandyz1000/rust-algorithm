@@ -22,7 +22,6 @@ use std::env;
 use std::io;
 
 use hyper::{Request, Response, StatusCode, Method};
-use postgres::Error;
 // use hyper::header::{Header, ContentLength, ContentType};
 use tokio::net::TcpListener;
 use std::net::SocketAddr;
@@ -53,6 +52,7 @@ struct TimeRange {
     after: Option<i64>,
 }
 
+// TODO: Fix here 
 fn parse_form(form_chunk: Chunk) -> Box<dyn FutureResult<NewMessage, hyper::Error, Ok = Ok, Err=Err>> {
     let mut form = url::form_urlencoded::parse(form_chunk.as_ref())
         .into_owned()
@@ -69,6 +69,7 @@ fn parse_form(form_chunk: Chunk) -> Box<dyn FutureResult<NewMessage, hyper::Erro
     }
 }
 
+// TODO: Fix here
 fn write_to_db(
     new_message: NewMessage,
     db_connection: &mut PgConnection,
@@ -291,6 +292,7 @@ async fn main() {
         // driven forward by the runtime, eventually yielding a TCP stream.
         let (stream, _) = listener.accept().await?;
 
+        // TODO: Fix here
         tokio::task::spawn(async move {
             let service = service_fn(move |req| response_examples(req));
             info!("Running microservice at {}", addr);

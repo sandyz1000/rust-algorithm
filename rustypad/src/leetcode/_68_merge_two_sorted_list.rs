@@ -66,46 +66,46 @@ impl Solution {
         // Compare if first_list value < second_list value
         // Copy value to to new list
         // TODO: Fix the test case
-        let mut merge = ListOption::new(-1);
-        let mut dummy: &mut Option<Box<ListNode>> = &mut merge;
-        let mut first = &l1.clone();
-        let mut second= &l2.clone();
+        let mut merge: ListOption = ListOption::new(-1);
+        let mut first: &ListOption = &l1.clone();
+        let mut second: &ListOption = &l2.clone();
         
-        while first.is_some() || second.is_some() {
-            if first.is_some() && second.is_none() {
-                if let Some(fir) = first {
-                    dummy.as_mut().unwrap().next = fir.next.clone();
-                    first = &fir.next;
+        let mut dummy = &mut merge;
+        
+        // If both list has value
+        while first.is_some() && second.is_some() {
+            if let Some(head) = dummy {
+                if let (Some(n1), 
+                        Some(n2)) = (first, second) {
+                    if n1.val < n2.val {
+                        head.next = n1.next.clone();
+                        first = &n1.next;
+                    }
+                    else {
+                        head.next = n2.next.clone();
+                        second = &n2.next;
+                    }
                 }
-
-                break;
+                dummy = &mut head.next;
             }
-            if first.is_none() && second.is_some() {
-                if let Some(sec) = second {
-                    dummy.as_mut().unwrap().next = sec.next.clone();
-                    second = &sec.next;
+        }
+        
+        // If either list is empty
+        if let Some(head) = dummy {
+            if first.is_some() && second.is_none() {
+                if let Some(node) = first {
+                    head.next = node.next.clone();
                 }
-                break;
-            } 
-            
-            // If both list has value
-            if first.is_some() && second.is_some() {
-                if first.as_ref().unwrap().val < second.as_ref().unwrap().val {
-                    if let Some(fir) = first {
-                        dummy.as_mut().unwrap().next = fir.next.clone();
-                        first = &fir.next;
-                    }
-                } 
-                else {
-                    if let Some(sec) = second {
-                        dummy.as_mut().unwrap().next = sec.next.clone();
-                        second = &sec.next;
-                    }
+            }
+            else if first.is_none() && second.is_some() {
+                if let Some(node) = second {
+                    head.next = node.next.clone();
                 }
-            }            
+            }
         }
 
         merge.unwrap().next
+        
     }
 
 }

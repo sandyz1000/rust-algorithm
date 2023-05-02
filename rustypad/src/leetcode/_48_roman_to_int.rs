@@ -51,3 +51,48 @@ Constraints:
 s contains only the characters ('I', 'V', 'X', 'L', 'C', 'D', 'M').
 It is guaranteed that s is a valid roman numeral in the range [1, 3999].
  */
+#![allow(unused)]
+use std::collections::HashMap;
+
+struct Solution;
+
+impl Solution {
+
+    fn init_values() -> HashMap<char, i32> {
+        let hm = [
+            ('I', 1), 
+            ('V', 5), 
+            ('X', 10), 
+            ('L', 50), 
+            ('C', 100), 
+            ('D',  500), 
+            ('M', 1000),
+        ].iter().cloned().collect::<HashMap<char, i32>>();
+        hm
+    }
+
+    fn roman_to_int(s: String) -> i32 {
+        let values = Solution::init_values();
+        
+        let mut total = 0;
+        let mut i: i32 = 0;
+        let characters = s.chars().collect::<Vec<char>>();
+        let size = s.len() as i32;
+        while i < size {
+            // If this is the subtractive case.
+            if i + 1 < size && values[&characters[i as usize]] < values[&characters[(i+1) as usize]] {
+                let next = values[&characters[(i+1) as usize]];
+                let curr = values[&characters[i as usize]];
+                total += next - curr;
+                i += 2;
+            }
+            // Else this is NOT the subtractive case.
+            else {
+                total += values[&characters[i as usize]];
+                i += 1;
+            }
+        }
+
+        total
+    }
+}

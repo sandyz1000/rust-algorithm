@@ -58,7 +58,7 @@ impl Trie {
     fn insert(&mut self, word: String) {
         let mut link = self;
         for c in word.chars() {
-            link = link.children.entry(c).or_default();
+            link = link.children.entry(c).or_insert(Trie::new());
         }
         link.end = true;
     }

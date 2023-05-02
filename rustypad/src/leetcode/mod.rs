@@ -59,8 +59,11 @@ mod _58_k_largest_in_array;
 mod _59_min_cost_connect_points;
 mod _61_two_sum;
 
-mod _67_generic_trie;
+mod _67_reverse_string;
 mod _68_merge_two_sorted_list;
 mod _69_inorder_successort_bst;
 mod _70_possible_bipartition;
 mod _02_inorder_successor;
+mod _03_n_queen;
+mod _62_square_sorted_array;
+mod _63_thread;

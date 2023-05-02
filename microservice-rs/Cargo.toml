@@ -16,7 +16,7 @@ bytes = "1.4.0"
 async-trait = "0.1.65"
 
 log = "0.4.1"
-maud = "0.24.0"
+maud = "0.25.0"
 postgres = "0.19.5"
 serde = "1.0.159"
 serde_derive = "1.0.159"
