@@ -38,6 +38,7 @@ The graph is shown above.
 The optimal path with no stops from city 0 to 2 is marked in red and has cost 500.
 
  */
+#![allow(unused)]
 
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap, VecDeque};

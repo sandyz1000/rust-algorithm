@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
  */
 
-use std::{borrow::BorrowMut, rc::Rc, ops::{DerefMut, Deref}};
+use std::{borrow::BorrowMut, ops::{DerefMut, Deref}};
 
 struct Solution;
 

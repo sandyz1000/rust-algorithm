@@ -27,13 +27,13 @@ def prim_mst(X: typing.List[typing.Tuple]):
         if count >= len(graph): break 
 
 */
-
+#![allow(unused)]
 
 struct Solution;
 
 impl Solution {
     fn prim_mst(graph: Vec<(i32, i32, i32)>) {
-
+        unimplemented!()
     }
 }
 

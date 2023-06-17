@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub struct UnionFind {
     // First index is the index of the element's parent
     // Second index is the size of the group the element

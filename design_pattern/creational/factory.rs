@@ -1,5 +1,7 @@
 //! Factory method creational design pattern allows creating objects without having to specify the exact type of the object that will be created.
 
+mod singleton_ii;
+
 trait Shape {
     fn draw(&self);
 }

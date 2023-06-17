@@ -60,6 +60,7 @@ There will be at least one element in the data structure when getRandom is calle
 
 
  */
+#![allow(unused)]
 
 use std::collections::HashMap;
 use std::mem::swap;

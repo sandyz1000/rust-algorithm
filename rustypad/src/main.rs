@@ -1,5 +1,5 @@
 #[derive(Debug)]
-enum List {
+pub enum List {
     Cons(Rc<RefCell<i32>>, Rc<List>),
     Nil,
 }

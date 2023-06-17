@@ -2,7 +2,7 @@
 
 
  */
-
+#![allow(unused)]
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
@@ -46,8 +46,7 @@ impl Solution {
     /// 2. bfs from start node to dest node
     #[allow(dead_code)]
     fn word_ladder<'q>(
-        begin_word: &'q str, end_word: &'q str, 
-        mut word_list: Vec<&'q str>, word_length: usize
+        begin_word: &'q str, end_word: &'q str, mut word_list: Vec<&'q str>, word_length: usize
     ) -> i32 {
         
         let mut word_graph: Graph = HashMap::new();
@@ -102,5 +101,5 @@ fn test() {
     let word_list = vec!["hot", "dot", "dog", "lot", "log", "cog"];
     let word_length = word_list[0].len();
     let ans = Solution::word_ladder(begin_word, end_word, word_list, word_length);
-
+    
 }

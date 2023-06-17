@@ -27,8 +27,7 @@ Output: [["Q"]]
 
 
  */
-#![allow(dead_code)]
-#![allow(unused_variables)]
+#![allow(unused)]
 
 #[derive(Debug, Clone)]
 struct  Solution;

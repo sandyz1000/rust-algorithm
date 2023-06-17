@@ -30,6 +30,16 @@ mod ch04p06;
 mod ch04p07;
 mod ch04p08;
 mod ch04p09;
+mod ch06p01;
+mod ch06p02;
+mod ch06p03;
+mod ch06p04;
+mod ch06p05;
+mod ch06p06;
+mod ch06p07;
+mod ch06p08;
+mod ch06p09;
+mod ch06p10;
 mod ch07p01;
 mod ch07p02;
 mod ch07p03;
@@ -42,5 +52,6 @@ mod ch07p09;
 mod ch07p10;
 mod ch07p11;
 mod ch07p12;
+
 
 

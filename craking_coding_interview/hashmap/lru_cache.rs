@@ -1,6 +1,5 @@
-mod lib;
-
-use arrayvec::{ArrayVec};
+//
+use arrayvec::ArrayVec;
 use core::fmt;
 
 #[cfg(test)]
@@ -458,4 +457,9 @@ mod test {
             "Touched item should be in the front."
         );
     }
+}
+
+
+fn main() {
+    //
 }

@@ -31,6 +31,7 @@ dislikes[i].length == 2
 All the pairs of dislikes are unique.
 
  */
+#![allow(unused)]
 
 struct Solution;
 

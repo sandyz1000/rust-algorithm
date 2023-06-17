@@ -31,6 +31,7 @@ The number of nodes in each linked list is in the range [1, 100].
 It is guaranteed that the list represents a number that does not have leading zeros.
 
  */
+#![allow(dead_code)]
 
 use crate::llist;
 use std::borrow::BorrowMut;
@@ -68,12 +69,12 @@ impl Solution {
     /// - Create a dummy list
     /// - Iterate and add two number
     /// https://leetcode.com/problems/add-two-numbers/solutions/1540708/my-rust-solution/
-    #[allow(dead_code)]
+    #[allow(unused)]
     fn add_two_numbers(l1: ListLink, l2: ListLink) -> ListLink {
         let mut dummy: ListNode = ListNode::new(-1);
         let mut p1: &ListLink = &l1;
         let mut p2: &ListLink = &l2;
-        let mut p3 = dummy.borrow_mut();
+        let mut p3 = &mut dummy;
         let mut carry: i32 = 0;
 
         while p1.is_some() || p2.is_some() || carry != 0 {
@@ -137,8 +138,8 @@ impl Solution {
 fn test_string() {
     // Tutorial for understand and manipulate mutable reference of data !!!
     let mut var_a = String::from("Howdy!!");
-    let var_b = &var_a;
-    let mut var_c = &mut var_a;
+    let _var_b = &var_a;
+    let var_c = &mut var_a;
 
     var_c.push_str("Hello world!");
 

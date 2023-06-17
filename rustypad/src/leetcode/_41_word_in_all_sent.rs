@@ -6,6 +6,7 @@ these sentences.
 Note that every word consists of only lowercase English alphabets.
 
  */
+#![allow(unused)]
 
 use std::{collections::HashMap, ops::DerefMut};
 

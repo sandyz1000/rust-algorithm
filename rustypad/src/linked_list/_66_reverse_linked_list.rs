@@ -1,16 +1,5 @@
 //
 
-use crate::llist;
-
-
-impl ListNode {
-    #[inline]
-    fn new(val: i32) -> ListNode {
-        ListNode { next: None, val: val }
-    }
-}
-
-
 #[derive(PartialEq, Eq, Clone, Debug, Default)]
 struct ListNode {
     pub val: i32,
@@ -18,12 +7,7 @@ struct ListNode {
 }
 
 type ListLink = Option<Box<ListNode>>;
-trait ListInit {
-    fn new(val: i32, next: ListLink) -> ListLink {
-        Some(Box::new(ListNode { val: val, next: next }))
-    }
-}
-impl ListInit for ListLink { }
+
 
 
 struct Solution;
@@ -33,12 +17,12 @@ impl Solution {
     #[allow(dead_code)]
     fn reverse_list_with_memory(head: ListLink) -> ListNode {
         
-        let mut next_node = head;
-        let mut prev = Some(Box::new(ListNode::new(-1)));
+        let mut curr = head;
+        let mut prev = Some(Box::new(ListNode {val: -1, next: None}));
 
-        while next_node.is_some() {
-            if let Some(mut node) = next_node {
-                next_node = node.next;
+        while curr.is_some() {
+            if let Some(mut node) = curr {
+                curr = node.next;
                 node.next = prev;
                 prev = Some(node)
             }
@@ -51,10 +35,10 @@ impl Solution {
     #[allow(dead_code)]
     fn reverse_list(head: ListLink) -> ListLink {
         
-        let mut next_node = head;
+        let mut curr = head;
         let mut prev = None;
-        while let Some(mut node) = next_node {
-            next_node = node.next;
+        while let Some(mut node) = curr {
+            curr = node.next.take();
             node.next = prev;
             prev = Some(node);
         }
@@ -64,19 +48,52 @@ impl Solution {
 }
 
 
+#[cfg(test)]
+mod test {
+    
+    #[macro_use]
+    macro_rules! list {
+        () => {
+            None
+        };
+        ($t:expr) => {
+            Some(Box::new(ListNode { val: $t, next: None }))
+        };
+        ($t:expr, $($tail:tt)*) => {
+            {
+                Some(Box::new(
+                    ListNode { 
+                        val: $t, 
+                        next: list!($( $tail )* )
+                    }
+                ))
+            }
+        }
+    }
 
-#[test]
-fn test() {
-    let head = llist!();
-    let res = llist!();
-    assert_eq!(Solution::reverse_list(head), res);
-    let head = llist!(1);
-    let res = llist!(1);
-    assert_eq!(Solution::reverse_list(head), res);
-    let head = llist!(1, 2);
-    let res = llist!(2, 1);
-    assert_eq!(Solution::reverse_list(head), res);
-    let head = llist!(1, 2, 3);
-    let res = llist!(3, 2, 1);
-    assert_eq!(Solution::reverse_list(head), res);
+    use super::*;
+    #[test]
+    fn test_one() {
+
+        let head = list!();
+        let res = list!();
+        assert_eq!(Solution::reverse_list(head), res);
+    }
+
+    #[test]
+    fn test_two() {
+        let head = list!(1);
+        let res = list!(1);
+        assert_eq!(Solution::reverse_list(head), res);
+    }
+
+    #[test]
+    fn test_three() {
+        let head = list!(1, 2);
+        let res = list!(2, 1);
+        assert_eq!(Solution::reverse_list(head), res);
+        let head = list!(1, 2, 3);
+        let res = list!(3, 2, 1);
+        assert_eq!(Solution::reverse_list(head), res);
+    }
 }
