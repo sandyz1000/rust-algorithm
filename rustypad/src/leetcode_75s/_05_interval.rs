@@ -116,13 +116,18 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// - Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
-    /// - Output: [[1,5],[6,9]]
-    ///
+    /// ```
+    /// let intervals = vec![vec![1,3],vec![6,9]]; let newInterval = vec![2,5];
+    /// let ans = vec![vec![1,5],vec![6,9]];
+    /// assert_eq!(Solution::insert(intervals, newInterval), ans);
+    /// ```
     /// Example 2:
     /// ----------
-    /// - Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
-    /// - Output: [[1,2],[3,10],[12,16]]
+    /// ```
+    /// let intervals = vec![vec![1,2],vec![3,5],vec![6,7],vec![8,10],vec![12,16]]; let newInterval = vec![4,8];
+    /// let ans = vec![vec![1,2],vec![3,10],vec![12,16]];
+    /// assert_eq!(Solution::insert(intervals, newInterval), ans);
+    /// ```
     /// - Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
     ///
     /// Constraints:
@@ -131,8 +136,41 @@ impl Solution {
     /// - intervals[i].length == 2
     /// - 0 <= starti <= endi <= 105
     ///
-    pub fn insert(intervals: Vec<Vec<i32>>, new_interval: Vec<i32>) -> Vec<Vec<i32>> {
-        unimplemented!()
+    pub fn insert(mut intervals: Vec<Vec<i32>>, new_interval: Vec<i32>) -> Vec<Vec<i32>> {
+        
+        fn insert_interval(intervals: &mut Vec<Vec<i32>>, new_interval: Vec<i32>) {
+            let mut inserted = false;
+            for i in 0..intervals.len() {
+                if intervals[i][0] > new_interval[0] {
+                    intervals.insert(i, new_interval.clone());
+                    inserted = true;
+                    break;
+                }
+            }
+            if !inserted {
+                intervals.push(new_interval.clone());
+            }
+        }
+        
+        // This will insert new interval into intervals at specified index based on start date
+        insert_interval(&mut intervals, new_interval);
+
+        let mut ans: Vec<Vec<i32>> = vec![intervals[0].clone()];
+        for i in 1..intervals.len() {
+            let interval = intervals[i].clone();
+            let (mut start, mut end) = (interval[0], interval[1]);
+            // Here merge the interval if any overlap found
+            
+            // If the last end is smaller than current start
+            if ans.last().unwrap()[1] < start {
+                ans.push(interval);
+            } else {
+                let last = ans.pop().unwrap();
+                ans.push(vec![last[0], end.max(last[1])]);
+            }
+        }
+
+        ans
     }
 }
 

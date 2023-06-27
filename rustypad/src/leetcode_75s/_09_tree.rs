@@ -1,4 +1,5 @@
 #![allow(unused)]
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::Ref;
 use std::cell::RefCell;
@@ -125,8 +126,19 @@ impl Solution {
     /// ----------
     /// The number of nodes in the tree is in the range [0, 100].
     /// -100 <= Node.val <= 100
-    pub fn invert_tree(root: Option<Rc<RefCell<TreeNode>>>) -> Option<Rc<RefCell<TreeNode>>> {
-        unimplemented!()   
+    pub fn invert_tree(root: Option<NodeRef>) -> Option<NodeRef> {
+        match root {
+            None => root,
+
+            Some(node) => {
+                let mut node_borrow = node.borrow_mut();
+                let left: Option<NodeRef> = Solution::invert_tree(node_borrow.left.take());
+                let right: Option<NodeRef> = Solution::invert_tree(node_borrow.right.take());
+                node_borrow.left = right;
+                node_borrow.right = left;
+                Some(node.clone())
+            }
+        }
     }
 
     /// ## 100. Same Tree
@@ -190,18 +202,20 @@ impl Solution {
     ///
     /// Example 2:
     /// ----------
-    /// Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
-    /// 
-    /// Output: 5
+    /// ```
+    /// let root = vec![3,5,1,6,2,0,8,null,null,7,4]; let p = 5; let q = 4;
+    /// assert_eq!(Solution::lowest_common_ancestor(root, p, q), 5);
+    /// ```
     /// 
     /// Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according 
     /// to the LCA definition.
     ///
     /// Example 3:
     /// ----------
-    /// Input: root = [1,2], p = 1, q = 2
-    /// 
-    /// Output: 1
+    /// ```
+    /// let root = vec![1,2]; let p = 1; let q = 2;
+    /// assert_eq!(Solution::lowest_common_ancestor(root, p, q), 1);
+    /// ```
     /// 
     fn lowest_common_ancestor(
         root: Option<NodeRef>, p: Option<NodeRef>,  q: Option<NodeRef>
@@ -235,15 +249,22 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// - Input: board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], 
-    /// words = ["oath","pea","eat","rain"]
-    /// -  Output: ["eat","oath"]
-    ///
+    /// ```
+    /// let board = vec![
+    ///     vec!["o","a","a","n"], 
+    ///     vec!["e","t","a","e"],
+    ///     vec!["i","h","k","r"],
+    ///     vec!["i","f","l","v"]], 
+    /// let words = vec!["oath","pea","eat","rain"]
+    /// assert_eq!(Solution::find_words(board, words), vec!["eat","oath"])
+    /// 
+    /// ```
     /// Example 2:
     /// ----------
-    /// - Input: board = [["a","b"],["c","d"]], words = ["abcb"]
-    /// - Output: []
-    ///
+    /// ```
+    /// let board = vec![vec!["a","b"],vec!["c","d"]]; let words = vec!["abcb"];
+    /// assert_eq!(Solution::find_words(board, words), vec![])
+    /// ```
     ///
     /// Constraints:
     /// ------------
@@ -283,7 +304,45 @@ impl Solution {
     /// 0 <= Node.val <= 104
     ///
     pub fn kth_smallest(root: NodeOption, k: i32) -> i32 {
-        unimplemented!()
+        // fn inorder_traversal(root: Option<NodeRef>) -> Vec<i32> {
+        //     if root.is_none() {
+        //         return vec![]
+        //     }
+        //     let mut ans: Vec<i32> = vec![];
+        //     if let Some(node) = root{
+        //         ans.extend(inorder_traversal(node.borrow().left.clone()));
+        //         ans.push(node.borrow().val);
+        //         ans.extend(inorder_traversal(node.borrow().right.clone()));
+        //     }
+        //     ans
+        // }
+
+        // let ans = inorder_traversal(root);
+        // *ans.iter().nth(k as usize).unwrap()
+
+        fn inorder_traversal(root: Option<NodeRef>, k: &mut i32) -> Option<NodeRef> {
+            match root {
+                Some(node) => {
+                    let left: Option<NodeRef> = inorder_traversal(node.borrow().left.clone(), k);
+                    if left .is_some() {
+                        return left;
+                    }
+                    *k -= 1;
+                    if *k == 0 {
+                        return Some(node);    
+                    }
+                    let right: Option<NodeRef> = inorder_traversal(node.borrow().right.clone(), k);
+                    right
+                },
+                None => {
+                    None
+                }
+            }
+        }
+        let mut k = k;
+        let ans: Option<NodeRef> = inorder_traversal(root, &mut k);
+        ans.unwrap().borrow().val
+    
     }
 
     /// ## 105. Construct Binary Tree from Preorder and Inorder Traversal
@@ -315,7 +374,39 @@ impl Solution {
     /// - inorder is guaranteed to be the inorder traversal of the tree.
     ///
     pub fn build_tree(preorder: Vec<i32>, inorder: Vec<i32>) -> NodeOption {
-        unimplemented!()
+        fn tree_from_preorder(
+            start: i32, end: i32, 
+            pre_index: &mut usize,
+            preorder: &Vec<i32>,
+            inorder_map: &HashMap<i32, i32>
+        ) -> Option<NodeRef> {
+            // Start and end are inorder index
+            if start > end {
+                return None;
+            }
+
+            let val = preorder[*pre_index];
+            let mut root: NodeRef = Rc::new(RefCell::new(TreeNode {val, left: None, right: None}));
+            *pre_index += 1;
+            
+            root.borrow_mut().left = tree_from_preorder(
+                start, inorder_map[&val] - 1, pre_index, preorder, inorder_map
+            );
+            root.borrow_mut().right = tree_from_preorder(
+                inorder_map[&val] + 1, end, pre_index, preorder, inorder_map
+            );
+            Some(root)
+        }
+
+        let mut pre_index = 0;
+        let inorder_map: HashMap<i32, i32> = 
+            inorder
+            .iter().enumerate()
+            .map(|(i, v)| (*v, i as i32)).collect();
+
+        let (start, end) = (0, (preorder.len() - 1) as i32);
+        let tree: Option<NodeRef> = tree_from_preorder(start, end, &mut pre_index, &preorder, &inorder_map);
+        tree
     }
 
 
@@ -380,8 +471,31 @@ impl Solution {
     /// -104 <= root.val <= 104
     /// -104 <= subRoot.val <= 104
     ///
-    pub fn is_subtree(root: Option<Rc<RefCell<TreeNode>>>, sub_root: Option<Rc<RefCell<TreeNode>>>) -> bool {
-        unimplemented!()
+    fn is_identical(root: Option<NodeRef>, sub_root: Option<NodeRef>) -> bool {
+        match (root, sub_root) {
+            (None, None) => true,
+            (Some(node), Some(sub_node)) => {
+                let subnode_borrow = sub_node.borrow();
+                let node_borrow = node.borrow();
+                node_borrow.val == subnode_borrow.val &&
+                Solution::is_identical(node_borrow.left.clone(), subnode_borrow.left.clone()) &&
+                Solution::is_identical(node_borrow.right.clone(), subnode_borrow.right.clone())
+            },
+            _ => false
+        }
+    }
+
+    pub fn is_subtree(root: Option<NodeRef>, sub_root: Option<NodeRef>) -> bool {
+        match (root) {
+            None => false,
+            Some(node) => {
+                if Solution::is_identical(Some(node.clone()), sub_root.clone()) {
+                    return true;
+                }
+                Solution::is_subtree(node.borrow().left.clone(), sub_root.clone()) ||
+                Solution::is_subtree(node.borrow().right.clone(), sub_root.clone())
+            }
+        }
     }
 
     

@@ -945,11 +945,13 @@ impl Solution {
         // Build graph
         let mut graph: HashMap<String, Vec<(String, f64)>> = HashMap::new();
         for i in 0..equations.len() {
-            let entry: &mut Vec<(String, f64)> = graph.entry(equations[i][0].clone())
+            let entry: &mut Vec<(String, f64)> = 
+                graph.entry(equations[i][0].clone())
                 .or_insert(Vec::new());
             entry.push((equations[i][1].clone(), values[i]));
 
-            let entry: &mut Vec<(String, f64)> = graph.entry(equations[i][1].clone())
+            let entry: &mut Vec<(String, f64)> = 
+                graph.entry(equations[i][1].clone())
                 .or_insert(Vec::new());
             entry.push((equations[i][0].clone(), 1.0 / values[i]));
         }

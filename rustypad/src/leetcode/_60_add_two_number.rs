@@ -33,7 +33,21 @@ It is guaranteed that the list represents a number that does not have leading ze
  */
 #![allow(dead_code)]
 
-use crate::llist;
+#[macro_use]
+macro_rules! llist {
+    () => {
+        None
+    };
+    ($t:expr) => {
+        ListLink::new($t, None)
+    };
+    ($t:expr, $($tail:tt)*) => {
+        ListLink::new($t, llist!(
+            $( $tail )* 
+        ))
+    }
+}
+
 use std::borrow::BorrowMut;
 
 struct Solution;

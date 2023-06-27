@@ -135,60 +135,7 @@ impl MovingAverage {
 struct Solution;
 
 impl Solution {
-    /// ## 20. Valid Parentheses
-    ///
-    /// Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', 
-    /// determine if the input string is valid.
-    ///
-    /// An input string is valid if:
-    ///
-    /// Open brackets must be closed by the same type of brackets.
-    /// Open brackets must be closed in the correct order.
-    /// Every close bracket has a corresponding open bracket of the same type.
-    ///
-    /// Example 1:
-    /// ----------  
-    /// Input: s = "()"
-    /// Output: true
-    /// 
-    /// Example 2:
-    /// ----------
-    /// Input: s = "()[]{}"
-    /// Output: true
-    /// 
-    /// Example 3:
-    /// ----------
-    /// Input: s = "(]"
-    /// Output: false
-    ///
-    /// Constraints:
-    /// ------------
-    /// 1 <= s.length <= 104
-    /// s consists of parentheses only '()[]{}'.
-    /// 
-    pub fn is_valid(s: String) -> bool {
-        const BRACKETS: [(char, char); 3] = [('(', ')'), ('[', ']'), ('{', '}')];
-        let bracket_map: HashMap<char, char> = BRACKETS.iter().cloned().collect();
-        let s: Vec<char> = s.chars().collect();
-        let mut stack: Vec<char> = vec![];
-        for ch in s {
-            if bracket_map.contains_key(&ch) {
-                stack.push(ch);
-            } else {
-                // If character starts with closing bracket
-                if stack.is_empty() {
-                    return false;
-                }
-                let top = stack.pop().unwrap();
-                if let Some(curr) = bracket_map.get(&top) {
-                    if ch != *curr {
-                        return false;
-                    }
-                }
-            }
-        }
-        stack.len() == 0 
-    }
+    
 
     /// ## 71. Simplify Path
     ///
@@ -575,21 +522,6 @@ mod tests {
         let path = "/home//foo/".to_string();
         let res = Solution::simplify_path(path);
         assert_eq!(res, "/home/foo");
-    }
-
-    #[test]
-    fn test_is_valid() {
-        let s = "()".to_string();
-        let res = Solution::is_valid(s);
-        assert_eq!(res, true);
-
-        let s = "()[]{}".to_string();
-        let res = Solution::is_valid(s);
-        assert_eq!(res, true);
-
-        let s = "(]".to_string();
-        let res = Solution::is_valid(s);
-        assert_eq!(res, false);
     }
 
     #[test]

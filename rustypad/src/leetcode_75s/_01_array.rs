@@ -1,11 +1,94 @@
 #![allow(unused)]
 
+use core::num;
+use std::collections::{HashMap, HashSet};
+
 struct Solution;
 
 impl Solution {
+    /// 1. Two Sum
+    ///
+    /// Given an array of integers nums and an integer target, return indices of the two numbers such 
+    /// that they add up to target.
+    ///
+    /// You may assume that each input would have exactly one solution, and you may not use the same 
+    /// element twice.
+    ///
+    /// You can return the answer in any order.
+    ///
+    /// Example 1:
+    /// -----------
+    /// - Input: nums = [2,7,11,15], target = 9
+    /// - Output: [0,1]
+    /// - Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
+    ///
+    /// Example 2:
+    /// -----------
+    /// - Input: nums = [3,2,4], target = 6
+    /// - Output: [1,2]
+    ///
+    /// Example 3:
+    /// ----------
+    /// - Input: nums = [3,3], target = 6
+    /// - Output: [0,1]
+    ///
+    ///
+    /// Constraints:
+    /// -----------
+    /// * 2 <= nums.length <= 104
+    /// * -109 <= nums[i] <= 109
+    /// * -109 <= target <= 109
+    /// Only one valid answer exists.
+    ///
+    /// Follow-up: Can you come up with an algorithm that is less than O(n^2) time complexity?
+    /// - Iterate nums and check if target - num contain in hashmap
+    /// - return indices of two number
+    ///
+    fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
+        let mut hm: HashMap<i32, usize> = HashMap::new();
+        for (index, num) in nums.iter().enumerate() {
+            let prev = target - *num;
+            if hm.contains_key(&prev) {
+                return vec![hm[&prev] as i32, index as i32];
+            }
+
+            hm.insert(num.clone(), index);
+        }
+        vec![]
+    }
+
+    /// - Two pointer O(n*logn)
+    /// - Sort the vector and then take left and right pointer
+    /// - Take the current sum and check if it is < target or > target
+    /// - If it is < target, move left pointer to the next number
+    /// - If it is > target, move right pointer to the next number
+    /// - return indices of two number
+    fn two_sum_two_pointer(nums: Vec<i32>, target: i32) -> Vec<i32> {
+        // Equivalent python code
+        // num_indices = list(map(lambda x: (x[0], x[1]), enumerate(nums)))
+        // nums_indices = sorted(num_indices, key=lambda x: x[1])
+        let mut nums_indices: Vec<(usize, &i32)> = nums.iter().enumerate().collect();
+        // nums_indices.sort_by_key(|&(_, num)| num);
+        nums_indices.sort_by(|x, y| x.1.cmp(y.1));
+        let mut left: i32 = 0;
+        let mut right: i32 = (nums_indices.len() - 1) as i32;
+        while left < right {
+            let current = nums_indices[left as usize].1 + nums_indices[right as usize].1;
+            if current == target {
+                let (l, r) = (nums_indices[left as usize].0, nums_indices[right as usize].0);
+                return vec![l as i32, r as i32];
+            }
+            if current < target {
+                left += 1;
+            } else {
+                right -= 1;
+            }
+        }
+        vec![]
+    }
+
     /// ## 121. Best Time to Buy and Sell Stock
     /// https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
-    /// https://medium.com/tech-pulse/an-easier-way-to-solve-all-stock-trading-questions-on-leetcode-fd081421f081
     ///
     /// You are given an array prices where prices[i] is the price of a given stock on the ith day.
     ///
@@ -15,25 +98,70 @@ impl Solution {
     /// Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
     ///
     ///
-    ///
     /// Example 1:
     /// -----------
-    /// Input: prices = [7,1,5,3,6,4]
-    /// Output: 5
-    /// Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+    /// - Input: prices = [7,1,5,3,6,4]
+    /// - Output: 5
+    /// - Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
     /// Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
-    /// Example 2:
     ///
-    /// Input: prices = [7,6,4,3,1]
-    /// Output: 0
-    /// Explanation: In this case, no transactions are done and the max profit = 0.
+    /// Example 2:
+    /// -----------
+    /// - Input: prices = [7,6,4,3,1]
+    /// - Output: 0
+    /// - Explanation: In this case, no transactions are done and the max profit = 0.
     ///
     ///
     /// Constraints:
-    ///
+    /// -----------
     /// 1 <= prices.length <= 105
     /// 0 <= prices[i] <= 104
     pub fn max_profit(prices: Vec<i32>) -> i32 {
+        let mut min_price = i32::MAX;
+        let mut max_profit = i32::MIN;
+
+        for price in prices {
+            min_price = min_price.min(price);
+            
+            // Calculate the max_profit
+            max_profit = max_profit.max(price - min_price);
+        }
+        max_profit
+    }
+    
+    /// ## Best Time to Buy and Sell Stock IV
+    /// https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/ 
+    /// https://medium.com/tech-pulse/an-easier-way-to-solve-all-stock-trading-questions-on-leetcode-fd081421f081
+    ///
+    /// You are given an integer array prices where prices[i] is the price of a given stock on the ith day, 
+    /// and an integer k.
+    ///
+    /// Find the maximum profit you can achieve. You may complete at most k transactions: i.e. you may buy 
+    /// at most k times and sell at most k times.
+    ///
+    /// Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before 
+    /// you buy again).
+    ///
+    /// Example 1:
+    /// -----------
+    /// Input: k = 2, prices = [2,4,1]
+    /// Output: 2
+    /// Explanation: Buy on day 1 (price = 2) and sell on day 2 (price = 4), profit = 4-2 = 2.
+    ///
+    /// Example 2:
+    ///
+    /// Input: k = 2, prices = [3,2,6,5,0,3]
+    /// Output: 7
+    /// Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit = 6-2 = 4. Then buy on 
+    /// day 5 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.
+    ///
+    /// Constraints:
+    /// -----------
+    /// 1 <= k <= 100
+    /// 1 <= prices.length <= 1000
+    /// 0 <= prices[i] <= 1000
+    ///
+    pub fn max_profit_iv(prices: Vec<i32>) -> i32 {
         unimplemented!()
     }
 
@@ -64,7 +192,15 @@ impl Solution {
     /// -109 <= nums[i] <= 109
     /// 
     pub fn contains_duplicate(nums: Vec<i32>) -> bool {
-        unimplemented!()
+        // Use hashset to add value and return false if item exist in hashset
+        let mut hashset: HashSet<i32> = HashSet::new();
+        for num in nums {
+            if hashset.contains(&num) {
+                return true;
+            }
+            hashset.insert(num);
+        }
+        false
     }
 
     /// ## 238. Product of Array Except Self
@@ -99,7 +235,21 @@ impl Solution {
     /// extra space for space complexity analysis.)
     ///
     pub fn product_except_self(nums: Vec<i32>) -> Vec<i32> {
-        unimplemented!()   
+        let mut res = vec![];
+        let mut prefix = 1;
+
+        for i in 0..nums.len() {
+            res.push(prefix);
+            prefix *= nums[i];
+        }
+
+        let mut postfix = 1;
+        for i in (0..nums.len()).rev() {
+            res[i] *= postfix;
+            postfix *= nums[i];
+        }
+        
+        res
     }
     
     /// ## 152. Maximum Product Subarray
@@ -202,8 +352,51 @@ impl Solution {
     /// ------------
     /// 3 <= nums.length <= 3000
     /// -105 <= nums[i] <= 105
-    pub fn three_sum(nums: Vec<i32>) -> Vec<Vec<i32>> {
-        unimplemented!()  
+    pub fn three_sum(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
+        fn two_sum(nums: &Vec<i32>, start: i32, ans: &mut Vec<Vec<i32>>) {
+            let mut left: i32 = start + 1;
+            let mut right: i32 = nums.len() as i32 - 1;
+            while left < right {
+                let total = nums[left as usize] + nums[right as usize] + nums[start as usize];
+                if total == 0 {
+                    ans.push(vec![nums[start as usize], nums[left as usize], nums[right as usize]]);
+                    left += 1;
+                    right -= 1;
+                    while left < right && nums[left as usize] == nums[(left - 1) as usize] {
+                        left += 1;
+                    }
+                    continue;
+                }
+
+                // If total > 0, decrease the right pointer
+                if total > 0 {
+                    right -= 1;
+                }
+                // Else increse the left pointer
+                else {
+                    left += 1;
+                }
+            }
+        }
+
+        nums.sort();
+        if nums.len() < 3 {
+            return vec![];
+        }
+        let mut ans: Vec<Vec<i32>> = vec![];
+        for start in 0..nums.len() {
+            // After sorting we only look for start value < 0
+            if nums[start] > 0 {
+                break;
+            }
+            // nums[start] != nums[start -1] is needed to avoid adding solution
+            // that already has been added
+            if start == 0 || nums[start] != nums[start -1] {
+                two_sum(&nums, start as i32, &mut ans);
+            }
+        }
+
+        ans
     }
 
     /// ## 11. Container With Most Water
@@ -237,7 +430,23 @@ impl Solution {
     /// 0 <= height[i] <= 104
     /// 
     pub fn max_area(height: Vec<i32>) -> i32 {
-        unimplemented!()
+        let mut left: i32 = 0;
+        let mut right: i32 = height.len() as i32 - 1;
+        let mut max_area: i32 = i32::MIN;
+
+        while left < right {
+            let length = (right - left);
+            let min_height = height[left as usize].min(height[right as usize]);
+            max_area = max_area.max(min_height * length);
+
+            if height[left as usize] < height[right as usize] {
+                left += 1;
+            } else {
+                right -= 1;
+            }
+        }
+
+        max_area
     }
     
     /// ## 33. Search in Rotated Sorted Array
@@ -278,7 +487,34 @@ impl Solution {
     /// nums is an ascending array that is possibly rotated.
     /// -104 <= target <= 104
     pub fn search(nums: Vec<i32>, target: i32) -> i32 {
-        unimplemented!()   
+        let mut left = 0;
+        let mut right = nums.len() - 1;
+
+        while left <= right {
+            let mid = left + (right - left) /2;
+            // If target found return mid
+            if nums[mid] == target {
+                return mid as i32;
+            }
+            // If left side sorted i.e. left < mid
+            if nums[left] <= nums[mid] {
+                // If target is b/w left and mid, then right = mid -1
+                if target >= nums[left] && target < nums[mid] {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            } 
+            else {
+                // If target is b/w mid and right, then right = mid -1
+                if target > nums[mid] && target <= nums[right] {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        } 
+        -1
     }
 
     /// ## 153. Find Minimum in Rotated Sorted Array
@@ -322,7 +558,38 @@ impl Solution {
     /// nums is sorted and rotated between 1 and n times.
     ///
     pub fn find_min(nums: Vec<i32>) -> i32 {
-        unimplemented!()    
+        if nums.len() == 1 {
+            return nums[0]
+        }
+        let mut right = nums.len() - 1;
+        let mut left = 0;
+
+        // Base case if nums[right] > nums[0], 
+        // then item is already sorted return nums[0]
+        if nums[right] > nums[0] {
+            return nums[0];
+        }
+
+        while left < right {
+            let mid = left + (right - left) / 2;
+
+            // If mid + 1 < mid, then return mid + 1
+            if nums[mid + 1] < nums[mid] {
+                return nums[(mid +1)];
+            }
+            // If mid - 1 > mid, then return mid
+            if nums[mid - 1] > nums[mid] {
+                return nums[mid];
+            }
+
+            // If mid > 0 index item, then search right (left is sorted)
+            if nums[mid] > nums[0] {
+                left = mid +1;
+            } else {
+                right = mid -1;
+            }
+        }
+        -1
     }
 
 
@@ -335,5 +602,37 @@ mod test {
 
     fn test_max_profit() {
 
+    }
+
+    #[test]
+    fn test_string_ref() {
+        // Rust &str vs String working example for understanding
+            
+        let foo: &str = "hello";
+        let bar: String = foo.to_string();
+        let baz: &str = &bar;
+        let x: bool = bar.eq(baz);
+        
+        // This will be a copy of baz string
+        let mut foobar: String = baz.to_owned();
+        foobar = foobar + " " + "world";
+    
+        println!("The value of x: {} ", x);
+        println!("The value of foo: {} ", foo);
+        println!("The value of foobar: {} ", foobar);
+    }
+    
+    #[test]
+    fn test_two_sum() {
+        let nums = vec![2, 7, 11, 15];
+        let target = 9;
+        assert_eq!(Solution::two_sum(nums, target), vec![0, 1]);
+    }
+    
+    #[test]
+    fn test_two_sum_two_pointer() {
+        let nums = vec![3,2,4];
+        let target = 6;
+        assert_eq!(Solution::two_sum_two_pointer(nums, target), vec![1, 2]);
     }
 }
