@@ -402,10 +402,10 @@ impl Solution {
                 return cache[&idx];
             }
 
-            let cost = std::cmp::max(
-                nums[idx as usize] + fn_rob(idx + 2, nums, cache), 
-                fn_rob(idx+1, nums, cache)
-            );
+            // Either rob the current house and skip next house or directly skip current house
+            let current = nums[idx as usize] + fn_rob(idx + 2, nums, cache);
+            let cost = current.max(fn_rob(idx+1, nums, cache));
+
             cache.insert(idx, cost);
             cache[&idx]
         }
@@ -429,7 +429,7 @@ impl Solution {
     /// -----------
     /// ```
     /// let nums = vec![2,3,2];
-    /// assert_eq!(rob_ii(nums), 3);
+    /// assert_eq!(Solution::rob_ii(nums), 3);
     /// ```
     /// Explanation: You cannot rob house 1 (money = 2) and then rob house 3 (money = 2), 
     /// because they are adjacent houses.
@@ -438,7 +438,7 @@ impl Solution {
     /// -----------
     /// ```
     /// let nums = vec![1,2,3,1];
-    /// assert_eq!(rob_ii(nums), 4);
+    /// assert_eq!(Solution::rob_ii(nums), 4);
     /// ```
     /// Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
     /// Total amount you can rob = 1 + 3 = 4.
@@ -454,7 +454,34 @@ impl Solution {
     /// - 0 <= nums[i] <= 1000
     ///
     pub fn rob_ii(nums: Vec<i32>) -> i32 {
-        unimplemented!()
+
+        // TODO: Fix other test cases
+        fn fn_rob(idx: i32, nums: &Vec<i32>, cache: &mut HashMap<i32, i32>) -> i32 {
+            // Base case
+            if idx >= nums.len() as i32 {
+                return 0;
+            }
+
+            // If the last house is the first house, since the houses are arrange in circle
+            if idx != 0 && nums[idx as usize] == nums[0] {
+                return 0;
+            }
+
+            // Return if this position has already calculated before
+            if cache.contains_key(&idx) {
+                return cache[&idx];
+            }
+
+            // Either rob the current house and skip next house or directly skip current house
+            let current = nums[idx as usize] + fn_rob(idx + 2, nums, cache);
+            let cost = current.max(fn_rob(idx+1, nums, cache));
+
+            cache.insert(idx, cost);
+            cache[&idx]
+        }
+        let mut cache: HashMap<i32, i32> = HashMap::new();
+        
+        fn_rob(0, &nums, &mut cache) 
     }
 
     /// ## Combination Sum
@@ -506,11 +533,54 @@ impl Solution {
     pub fn combination_sum(candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
         unimplemented!()
     }
+
+    /// ## 55. Jump Game
+    /// https://leetcode.com/problems/jump-game/
+    ///
+    /// You are given an integer array nums. You are initially positioned at the array's first index, and 
+    /// each element in the array represents your maximum jump length at that position.
+    ///
+    /// Return true if you can reach the last index, or false otherwise.
+    ///
+    /// Example 1:
+    /// ----------
+    /// ```
+    /// let nums = [2,3,1,1,4]
+    /// assert_eq!(Solution::can_jump(nums), true);
+    /// ```
+    /// Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+    ///
+    /// Example 2:
+    /// ---------
+    /// ```
+    /// let nums = vec![3,2,1,0,4];
+    /// assert_eq!(Solution::can_jump(nums), false);
+    /// ```
+    // Explanation: You will always arrive at index 3 no matter what. Its maximum jump length is 0, which 
+    /// makes it impossible to reach the last index.
+    ///
+    ///
+    /// Constraints:
+    /// ------------
+    /// * 1 <= nums.length <= 104
+    /// * 0 <= nums[i] <= 105
+    pub fn can_jump(nums: Vec<i32>) -> bool {
+        unimplemented!()   
+    }
+
+
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_can_jump() {
+        let nums = vec![3,2,1,0,4];
+        assert_eq!(Solution::can_jump(nums), false);
+
+    }
 
     #[test]
     fn test_climb_stairs() {
@@ -537,5 +607,27 @@ mod test {
 
         let cost = vec![1,100,1,1,1,100,1,1,100,1];
         assert_eq!(Solution::min_cost_climbing_stairs(cost), 6);
+    }
+
+    #[test]
+    fn test_rob() {
+        let nums = vec![1,2,3,1];
+        assert_eq!(Solution::rob(nums), 4);
+
+        let nums = vec![2,7,9,3,1];
+        assert_eq!(Solution::rob(nums), 12);
+    }
+    
+    #[test]
+    fn test_rob_ii(){
+        let nums = vec![2,3,2];
+        assert_eq!(Solution::rob_ii(nums), 3);
+
+        let nums = vec![1,2,3,1];
+        assert_eq!(Solution::rob_ii(nums), 4);
+        
+        // TODO: Fix this test case
+        let nums = vec![1,2,3];
+        assert_eq!(Solution::rob_ii(nums), 3);
     }
 }

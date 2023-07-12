@@ -22,7 +22,9 @@ impl Solution {
 
         while curr.is_some() {
             if let Some(mut node) = curr {
+                // Advance the curr pointer
                 curr = node.next;
+                // Make the next pointer point to the previous node
                 node.next = prev;
                 prev = Some(node)
             }

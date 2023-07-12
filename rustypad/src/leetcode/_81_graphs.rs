@@ -1,5 +1,5 @@
 #![allow(unused)]
-use std::{collections::{HashMap, HashSet, VecDeque}, hash::Hash};
+use std::{collections::{HashMap, HashSet, VecDeque, BinaryHeap}, hash::Hash, cmp::Reverse, cell::RefCell};
 
 
 #[derive(Debug, PartialEq, Eq)]
@@ -15,31 +15,33 @@ impl Solution {
     ///
     /// A province is a group of directly or indirectly connected cities and no other cities outside of the group.
     ///
-    /// You are given an n x n matrix isConnected where isConnected[i][j] = 1 if the ith city and the jth city are 
-    /// directly connected, and isConnected[i][j] = 0 otherwise.
+    /// You are given an n x n matrix isConnected where isConnected\[i]\[j] = 1 if the ith city and the jth city are 
+    /// directly connected, and isConnected\[i]\[j] = 0 otherwise.
     ///
     /// Return the total number of provinces.
     ///
     /// Example 1:
     /// ----------
-    /// Input: isConnected = [[1,1,0],[1,1,0],[0,0,1]]
-    /// Output: 2
-    /// 
+    /// ```
+    /// let isConnected = vec![vec![1,1,0],vec![1,1,0],vec![0,0,1]];
+    /// assert_eq!(Solution::find_circle_num(isConnected), 2);
+    /// ```
+    ///
     /// Example 2:
     /// ----------
-    /// Input: isConnected = [[1,0,0],[0,1,0],[0,0,1]]
-    /// Output: 3
-    ///
+    /// ```
+    /// let isConnected = vec![vec![1,0,0],vec![0,1,0],vec![0,0,1]];
+    /// assert_eq!(Solution::find_circle_num(isConnected), 3);
+    /// ```
     ///
     // Constraints:
     /// -----------
-    /// 1 <= n <= 200
-    /// n == isConnected.length
-    /// n == isConnected[i].length
-    /// isConnected[i][j] is 1 or 0.
-    /// isConnected[i][i] == 1
-    /// isConnected[i][j] == isConnected[j][i]
-    ///
+    /// * 1 <= n <= 200
+    /// * n == isConnected.length
+    /// * n == isConnected[i].length
+    /// * isConnected\[i]\[j] is 1 or 0.
+    /// * isConnected\[i]\[i] == 1
+    /// * isConnected\[i]\[j] == isConnected\[j]\[i]
     ///
     pub fn find_circle_num(is_connected: Vec<Vec<i32>>) -> i32 {
         fn dfs(node: i32, graph: &Graph, visited: &mut HashSet<i32>) {
@@ -84,6 +86,58 @@ impl Solution {
         ans
     }
 
+    // Use Union-Find method to solve this problem
+    pub fn find_circle_num_ii(is_connected: Vec<Vec<i32>>) -> i32 {
+        struct UnionFind {
+            root: Vec<usize>,
+            rank: Vec<usize>,
+        }
+
+        impl UnionFind {
+            fn new(n: usize) -> Self {
+                Self {
+                    root: (0..n).collect(),
+                    rank: vec![0; n as usize],
+                }
+            }
+
+            fn find(&mut self, x: usize) -> i32 {
+                
+                if x == self.root[x] {
+                    return x as i32;
+                }
+                self.root[x] = self.find(self.root[x]) as usize;
+                self.root[x] as i32
+            }
+
+            fn union(&mut self, x: usize, y: usize) {
+                let x = self.find(x);
+                let y = self.find(y);
+                if self.rank[x as usize] > self.rank[y as usize] {
+                    self.root[y as usize] = x as usize;
+                } else if self.rank[y as usize] > self.rank[x as usize] {
+                    self.root[x as usize] = y as usize;
+                } else {
+                    self.root[x as usize] = y as usize;
+                    self.rank[y as usize] += 1;
+                }
+            }
+        }
+        let mut no_conn_comp = is_connected.len();
+        let mut union_find: UnionFind = UnionFind::new(no_conn_comp);
+
+        for row in 0..is_connected.len() {
+            for col in (row+1)..is_connected.len() {
+                
+                if is_connected[row][col] == 1 && union_find.find(row) != union_find.find(col) {
+                    union_find.union(row, col);
+                    no_conn_comp -= 1;
+                }
+            }
+        }
+        no_conn_comp as i32
+    }
+    
     /// ## 1466. Reorder Routes to Make All Paths Lead to the City Zero
     /// https://leetcode.com/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/
     ///
@@ -91,7 +145,7 @@ impl Solution {
     /// travel between two different cities (this network form a tree). Last year, The ministry of transport 
     /// decided to orient the roads in one direction because they are too narrow.
     ///
-    /// Roads are represented by connections where connections[i] = [ai, bi] represents a road from city ai 
+    /// Roads are represented by connections where connections\[i] = \[ai, bi] represents a road from city ai 
     /// to city bi.
     ///
     /// This year, there will be a big event in the capital (city 0), and many people want to travel to this city.
@@ -103,28 +157,33 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// Input: n = 6, connections = [[0,1],[1,3],[2,3],[4,0],[4,5]]
-    /// Output: 3
-    /// Explanation: Change the direction of edges show in red such that each node can reach the node 0 (capital).
+    /// ```
+    /// let n = 6; let connections = vec![vec![0,1],vec![1,3],vec![2,3],vec![4,0],vec![4,5]];
+    /// assert_eq!(Solution::reorder_routes(n, connections), 3);
+    /// ```
+    /// *Explanation*: Change the direction of edges show in red such that each node can reach the node 0 (capital).
     ///
     /// Example 2:
     /// ----------
-    /// Input: n = 5, connections = [[1,0],[1,2],[3,2],[3,4]]
-    /// Output: 2
-    /// Explanation: Change the direction of edges show in red such that each node can reach the node 0 (capital).
+    /// ```
+    /// let n = 5; let connections = vec![[1,0],[1,2],[3,2],[3,4]];
+    /// assert_eq!(Solution::reorder_routes(n, connections), 2);
+    /// ```
+    /// *Explanation*: Change the direction of edges show in red such that each node can reach the node 0 (capital).
     ///
     /// Example 3:
     /// ----------
-    /// Input: n = 3, connections = [[1,0],[2,0]]
-    /// Output: 0
-    ///
+    /// ```
+    /// let n = 3; let connections = vec![vec![1,0],vec![2,0]];
+    /// assert_eq!(Solution::reorder_routes(n, connections), 0);
+    /// ```
     /// Constraints:
     /// ------------
-    /// 2 <= n <= 5 * 104
-    /// connections.length == n - 1
-    /// connections[i].length == 2
-    /// 0 <= ai, bi <= n - 1
-    /// ai != bi
+    /// * 2 <= n <= 5 * 104
+    /// * connections.length == n - 1
+    /// * connections\[i].length == 2
+    /// * 0 <= ai, bi <= n - 1
+    /// * ai != bi
     pub fn min_reorder(n: i32, connections: Vec<Vec<i32>>) -> i32 {
         fn dfs(
             source: i32, 
@@ -181,30 +240,34 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// Input: rooms = [[1],[2],[3],[]]
-    /// Output: true
-    /// Explanation: 
+    /// ```
+    /// let rooms = vec![vec![1],vec![2],vec![3],vec![]];
+    /// assert_eq!(Solution::can_visit_all_rooms(rooms), true);
+    /// ```
+    /// *Explanation*:
+    /// ```doc 
     /// We visit room 0 and pick up key 1.
     /// We then visit room 1 and pick up key 2.
     /// We then visit room 2 and pick up key 3.
     /// We then visit room 3.
     /// Since we were able to visit every room, we return true.
+    /// ```
     /// 
     /// Example 2:
     /// --------
-    /// Input: rooms = [[1,3],[3,0,1],[2],[0]]
-    /// Output: false
-    /// Explanation: We can not enter room number 2 since the only key that unlocks it is in that room.
-    ///
+    /// let rooms = vec![vec![1,3],vec![3,0,1],vec![2],vec![0]];
+    /// assert_eq!(Solution::can_visit_all_rooms(rooms), false);
+    /// ```
+    /// *Explanation*: We can not enter room number 2 since the only key that unlocks it is in that room.
     ///
     /// Constraints:
     /// -----------
-    /// n == rooms.length
-    /// 2 <= n <= 1000
-    /// 0 <= rooms[i].length <= 1000
-    /// 1 <= sum(rooms[i].length) <= 3000
-    /// 0 <= rooms[i][j] < n
-    /// All the values of rooms[i] are unique.
+    /// * n == rooms.length
+    /// * 2 <= n <= 1000
+    /// * 0 <= rooms\[i].length <= 1000
+    /// * 1 <= sum(rooms\[i].length) <= 3000
+    /// * 0 <= rooms\[i]\[j] < n
+    /// * All the values of rooms\[i] are unique.
     /// 
     pub fn can_visit_all_rooms(rooms: Vec<Vec<i32>>) -> bool {
         // Return a visited set of len == rooms.length
@@ -593,50 +656,51 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    ///
-    /// Input: maze = [["+","+",".","+"],[".",".",".","+"],["+","+","+","."]], entrance = [1,2]
-    /// 
-    /// Output: 1
+    /// ```
+    /// let maze = vec![vec!["+","+",".","+"],vec![".",".",".","+"],vec!["+","+","+","."]]; let entrance = vec![1,2];
+    /// assert_eq!(Solution::nearest_exit(maze, entrance), 1);
+    /// ```
     /// 
     /// Explanation: There are 3 exits in this maze at [1,0], [0,2], and [2,3].
     /// Initially, you are at the entrance cell [1,2].
-    /// - You can reach [1,0] by moving 2 steps left.
-    /// - You can reach [0,2] by moving 1 step up.
-    /// It is impossible to reach [2,3] from the entrance.
-    /// Thus, the nearest exit is [0,2], which is 1 step away.
+    /// - You can reach \[1,0] by moving 2 steps left.
+    /// - You can reach \[0,2] by moving 1 step up.
+    /// It is impossible to reach \[2,3] from the entrance.
+    /// Thus, the nearest exit is \[0,2], which is 1 step away.
     ///
     /// Example 2:
     /// ----------
-    ///
-    /// Input: maze = [["+","+","+"],[".",".","."],["+","+","+"]], entrance = [1,0]
+    /// ```
+    /// let maze = vec![vec!["+","+","+"],vec![".",".","."],vec!["+","+","+"]]; let entrance = vec![1,0];
+    /// assert_eq!(Solution::nearest_exit(maze, entrance), 2);
+    /// ```
     /// 
-    /// Output: 2
-    /// 
-    /// Explanation: There is 1 exit in this maze at [1,2].
-    /// [1,0] does not count as an exit since it is the entrance cell.
-    /// Initially, you are at the entrance cell [1,0].
-    /// - You can reach [1,2] by moving 2 steps right.
-    /// Thus, the nearest exit is [1,2], which is 2 steps away.
+    /// *Explanation*: 
+    /// - There is 1 exit in this maze at \[1,2].
+    /// \[1,0] does not count as an exit since it is the entrance cell.
+    /// Initially, you are at the entrance cell \[1,0].
+    /// - You can reach \[1,2] by moving 2 steps right.
+    /// Thus, the nearest exit is \[1,2], which is 2 steps away.
     ///
     /// Example 3:
     /// ----------
-    ///
-    /// Input: maze = [[".","+"]], entrance = [0,0]
+    /// ```
+    /// let maze = vec![vec![".","+"]]; let entrance = vec![0,0];
+    /// assert_eq!(Solution::nearest_exit(maze, entrance), -1);
+    /// ```
     /// 
-    /// Output: -1
-    /// 
-    /// Explanation: There are no exits in this maze.
+    /// *Explanation*: There are no exits in this maze.
     ///
     /// Constraints:
     /// -----------
-    /// maze.length == m
-    /// maze[i].length == n
-    /// 1 <= m, n <= 100
-    /// maze[i][j] is either '.' or '+'.
-    /// entrance.length == 2
-    /// 0 <= entrancerow < m
-    /// 0 <= entrancecol < n
-    /// entrance will always be an empty cell.
+    /// * maze.length == m
+    /// * maze\[i].length == n
+    /// * 1 <= m, n <= 100
+    /// * maze\[i]\[j] is either '.' or '+'.
+    /// * entrance.length == 2
+    /// * 0 <= entrancerow < m
+    /// * 0 <= entrancecol < n
+    /// * entrance will always be an empty cell.
     ///
     pub fn nearest_exit(maze: Vec<Vec<char>>, entrance: Vec<i32>) -> i32 {
 
@@ -682,62 +746,62 @@ impl Solution {
     /// https://leetcode.com/problems/snakes-and-ladders/description/
     ///
     /// You are given an n x n integer matrix board where the cells are labeled from 1 to n2 in a Boustrophedon 
-    /// style starting from the bottom left of the board (i.e. board[n - 1][0]) and alternating direction each row.
+    /// style starting from the bottom left of the board (i.e. board\[n - 1]\[0]) and alternating direction each row.
     ///
     /// You start on square 1 of the board. In each move, starting from square curr, do the following:
     ///
-    /// - Choose a destination square next with a label in the range [curr + 1, min(curr + 6, n2)].
+    /// - Choose a destination square next with a label in the range \[curr + 1, min(curr + 6, n2)].
     /// - This choice simulates the result of a standard 6-sided die roll: i.e., there are always at most 
     /// 6 destinations, regardless of the size of the board.
     /// - If next has a snake or ladder, you must move to the destination of that snake or ladder. Otherwise, you 
     // move to next.
     /// - The game ends when you reach the square n2.
     ///
-    /// A board square on row r and column c has a snake or ladder if board[r][c] != -1. The destination of that 
-    /// snake or ladder is board[r][c]. Squares 1 and n2 do not have a snake or ladder.
+    /// A board square on row r and column c has a snake or ladder if board\[r]\[c] != -1. The destination of that 
+    /// snake or ladder is board\[r]\[c]. Squares 1 and n2 do not have a snake or ladder.
     ///
     /// Note that you only take a snake or ladder at most once per move. If the destination to a snake or ladder 
     /// is the start of another snake or ladder, you do not follow the subsequent snake or ladder.
     ///
-    /// - For example, suppose the board is [[-1,4],[-1,3]], and on the first move, your destination square is 2. 
+    /// - For example, suppose the board is \[\[-1,4],\[-1,3]], and on the first move, your destination square is 2. 
     /// You follow the ladder to square 3, but do not follow the subsequent ladder to 4.
     ///
     /// Return the least number of moves required to reach the square n2. If it is not possible to reach the square, 
     /// return -1.
     ///
-    ///
     /// Example 1:
     /// ----------
-    /// Input: board = 
-    /// [[-1,-1,-1,-1,-1,-1],
-    /// [-1,-1,-1,-1,-1,-1],
-    /// [-1,-1,-1,-1,-1,-1],
-    /// [-1,35,-1,-1,13,-1],
-    /// [-1,-1,-1,-1,-1,-1],
-    /// [-1,15,-1,-1,-1,-1]]
-    /// 
-    /// Output: 4
-    /// 
+    /// ```
+    /// let board = vec![
+    /// vec![-1,-1,-1,-1,-1,-1],
+    /// vec![-1,-1,-1,-1,-1,-1],
+    /// vec![-1,-1,-1,-1,-1,-1],
+    /// vec![-1,35,-1,-1,13,-1],
+    /// vec![-1,-1,-1,-1,-1,-1],
+    /// vec![-1,15,-1,-1,-1,-1]];
+    /// assert_eq!(Solution::snakes_and_ladders(board), 4);
+    /// ```
     /// Explanation: 
-    /// In the beginning, you start at square 1 (at row 5, column 0).
-    /// You decide to move to square 2 and must take the ladder to square 15.
-    /// You then decide to move to square 17 and must take the snake to square 13.
-    /// You then decide to move to square 14 and must take the ladder to square 35.
-    /// You then decide to move to square 36, ending the game.
-    /// This is the lowest possible number of moves to reach the last square, so return 4.
+    /// * In the beginning, you start at square 1 (at row 5, column 0).
+    /// * You decide to move to square 2 and must take the ladder to square 15.
+    /// * You then decide to move to square 17 and must take the snake to square 13.
+    /// * You then decide to move to square 14 and must take the ladder to square 35.
+    /// * You then decide to move to square 36, ending the game.
+    /// * This is the lowest possible number of moves to reach the last square, so return 4.
     ///
     /// Example 2:
     /// ----------
-    /// Input: board = [[-1,-1],[-1,3]]
-    /// 
-    /// Output: 1
+    /// ```
+    /// let board = vec![vec![-1,-1],vec![-1,3]];
+    /// assert_eq!(Solution::snakes_and_ladders(board), 1);
+    /// ```
     ///
     /// Constraints:
     /// ----------
-    /// n == board.length == board[i].length
-    /// 2 <= n <= 20
-    /// board[i][j] is either -1 or in the range [1, n2].
-    /// The squares labeled 1 and n2 do not have any ladders or snakes.
+    /// * n == board.length == board[i].length
+    /// * 2 <= n <= 20
+    /// * board[i][j] is either -1 or in the range [1, n2].
+    /// * The squares labeled 1 and n2 do not have any ladders or snakes.
     ///
     /// TODO: Fix test cases
     pub fn snakes_and_ladders(board: Vec<Vec<i32>>) -> i32 {
@@ -796,7 +860,7 @@ impl Solution {
     /// https://leetcode.com/problems/open-the-lock/
     /// 
     /// You have a lock in front of you with 4 circular wheels. Each wheel has 10 slots: 
-    /// ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']. The wheels can rotate freely and wrap around: 
+    /// \['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']. The wheels can rotate freely and wrap around: 
     /// for example we can turn '9' to be '0', or '0' to be '9'. Each move consists of turning one wheel one slot.
     ///
     /// The lock initially starts at '0000', a string representing the state of the 4 wheels.
@@ -809,32 +873,38 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// Input: deadends = ["0201","0101","0102","1212","2002"], target = "0202"
-    /// Output: 6
-    /// Explanation: 
+    /// ```
+    /// let deadends = vec!["0201","0101","0102","1212","2002"]; let target = "0202".to_string();
+    /// assert_eq!(Solution::open_lock(deadends, target), 6);
+    /// ```
+    /// *Explanation*: 
     /// A sequence of valid moves would be "0000" -> "1000" -> "1100" -> "1200" -> "1201" -> "1202" -> "0202".
     /// Note that a sequence like "0000" -> "0001" -> "0002" -> "0102" -> "0202" would be invalid,
     /// because the wheels of the lock become stuck after the display becomes the dead end "0102".
     ///
     /// Example 2:
     /// ----------
-    /// Input: deadends = ["8888"], target = "0009"
-    /// Output: 1
-    /// Explanation: We can turn the last wheel in reverse to move from "0000" -> "0009".
+    /// ```
+    /// let deadends = vec!["8888"]; let target = "0009".to_string();
+    /// assert_eq!(Solution::open_lock(deadends, target), 1);
+    /// ```
+    /// *Explanation*: We can turn the last wheel in reverse to move from "0000" -> "0009".
     /// 
     /// Example 3:
     /// ----------
-    /// Input: deadends = ["8887","8889","8878","8898","8788","8988","7888","9888"], target = "8888"
-    /// Output: -1
-    /// Explanation: We cannot reach the target without getting stuck.
+    /// ```
+    /// let deadends = vec!["8887","8889","8878","8898","8788","8988","7888","9888"]; let target = "8888".to_string();
+    /// assert_eq!(Solution::open_lock(deadends, target), -1);
+    /// ```
+    /// *Explanation*: We cannot reach the target without getting stuck.
     ///
     /// Constraints:
     /// -----------
-    /// 1 <= deadends.length <= 500
-    /// deadends[i].length == 4
-    /// target.length == 4
-    /// target will not be in the list deadends.
-    /// target and deadends[i] consist of digits only.
+    /// * 1 <= deadends.length <= 500
+    /// * deadends[i].length == 4
+    /// * target.length == 4
+    /// * target will not be in the list deadends.
+    /// * target and deadends[i] consist of digits only.
     pub fn open_lock(deadends: Vec<String>, target: String) -> i32 {
         // Function to generate all possible paths from the current position
         // Visited sets to keep track of already visited positions
@@ -893,10 +963,10 @@ impl Solution {
     /// https://leetcode.com/problems/evaluate-division/
     ///
     /// You are given an array of variable pairs equations and an array of real numbers values, where 
-    /// equations[i] = [Ai, Bi] and values[i] represent the equation Ai / Bi = values[i]. Each Ai or Bi 
+    /// equations\[i] = \[Ai, Bi] and values\[i] represent the equation Ai / Bi = values\[i]. Each Ai or Bi 
     /// is a string that represents a single variable.
     ///
-    /// You are also given some queries, where queries[j] = [Cj, Dj] represents the jth query where you 
+    /// You are also given some queries, where queries\[j] = \[Cj, Dj] represents the jth query where you 
     /// must find the answer for Cj / Dj = ?.
     ///
     /// Return the answers to all queries. If a single answer cannot be determined, return -1.0.
@@ -906,37 +976,43 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// Input: equations = [["a","b"],["b","c"]], values = [2.0,3.0], queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]
-    ///
-    /// Output: [6.00000,0.50000,-1.00000,1.00000,-1.00000]
-    /// Explanation: 
+    /// ```
+    /// let equations = vec![vec!["a","b"],vec!["b","c"]]; let values = vec![2.0,3.0]; 
+    /// let queries = vec![vec!["a","c"],vec!["b","a"],vec!["a","e"],vec!["a","a"],vec!["x","x"]];
+    /// let ans = vec![6.00000,0.50000,-1.00000,1.00000,-1.00000]
+    /// assert_eq!(Solution::solve(equations, values, queries), ans);
+    /// ```
+    /// *Explanation*:
+    /// ```doc 
     /// Given: a / b = 2.0, b / c = 3.0
     /// queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ?
     /// return: [6.0, 0.5, -1.0, 1.0, -1.0 ]
-    ///
+    /// ```
     /// Example 2:
     /// ----------
-    /// Input: equations = [["a","b"],["b","c"],["bc","cd"]], values = [1.5,2.5,5.0], queries = [["a","c"],["c","b"],["bc","cd"],["cd","bc"]]
-    /// Output: [3.75000,0.40000,5.00000,0.20000]
-    ///
+    /// ```
+    /// let equations = vec![vec!["a","b"],vec!["b","c"],vec!["bc","cd"]];
+    /// let values = vec![1.5,2.5,5.0]; let queries = vec![vec!["a","c"],vec!["c","b"],vec!["bc","cd"],vec!["cd","bc"]];
+    /// let ans = [3.75000,0.40000,5.00000,0.20000];
+    /// assert_eq!(Solution::solve(equations, values, queries), ans);
+    /// ```
     /// Example 3:
     /// ----------
+    /// ```
     /// Input: equations = [["a","b"]], values = [0.5], queries = [["a","b"],["b","a"],["a","c"],["x","y"]]
-    ///
     /// Output: [0.50000,2.00000,-1.00000,-1.00000]
-    ///
+    /// ```
     /// Constraints:
     /// ------------
-    /// 1 <= equations.length <= 20
-    /// equations[i].length == 2
-    /// 1 <= Ai.length, Bi.length <= 5
-    /// values.length == equations.length
-    /// 0.0 < values[i] <= 20.0
-    /// 1 <= queries.length <= 20
-    /// queries[i].length == 2
-    /// 1 <= Cj.length, Dj.length <= 5
-    /// Ai, Bi, Cj, Dj consist of lower case English letters and digits.
-    /// 
+    /// * 1 <= equations.length <= 20
+    /// * equations\[i].length == 2
+    /// * 1 <= Ai.length, Bi.length <= 5
+    /// * values.length == equations.length
+    /// * 0.0 < values\[i] <= 20.0
+    /// * 1 <= queries.length <= 20
+    /// * queries\[i].length == 2
+    /// * 1 <= Cj.length, Dj.length <= 5
+    /// * Ai, Bi, Cj, Dj consist of lower case English letters and digits.
     pub fn calc_equation(
         equations: Vec<Vec<String>>, values: Vec<f64>, queries: Vec<Vec<String>>
     ) -> Vec<f64> {
@@ -1090,29 +1166,29 @@ impl Solution {
     ///
     /// Example 1:
     /// ------------
-    /// Input: n = 6, edges = [[0,1],[0,2],[2,5],[3,4],[4,2]]
-    ///
-    /// Output: [0,3]
-    ///
-    /// Explanation: It's not possible to reach all the nodes from a single vertex. From 0 we can reach [0,1,2,5]. 
+    /// ```
+    /// let n = 6; letedges = vec![[0,1],[0,2],[2,5],[3,4],[4,2]].map(|x| x.to_vec()).collect();
+    /// assert_eq!(Solution::smallest_set_of_vertices(n, edges), vec![0,3]);
+    /// ```
+    /// *Explanation*: It's not possible to reach all the nodes from a single vertex. From 0 we can reach [0,1,2,5]. 
     /// From 3 we can reach [3,4,2,5]. So we output [0,3].
     ///
     /// Example 2:
     /// ------------
-    // Input: n = 5, edges = [[0,1],[2,1],[3,1],[1,4],[2,4]]
-    ///
-    /// Output: [0,2,3]
-    ///
-    /// Explanation: Notice that vertices 0, 3 and 2 are not reachable from any other node, so we must include them. 
+    /// ```
+    /// let n = 5; let edges = vec![[0,1],[2,1],[3,1],[1,4],[2,4]].map(|x| x.to_vec()).collect();
+    /// assert_eq!(Solution::smallest_set_of_vertices(n, edges), vec![0,2,3]);
+    /// ```
+    /// *Explanation*: Notice that vertices 0, 3 and 2 are not reachable from any other node, so we must include them. 
     /// Also any of these vertices can reach nodes 1 and 4.
     ///
     /// Constraints:
     /// -----------
-    /// 2 <= n <= 10^5
-    /// 1 <= edges.length <= min(10^5, n * (n - 1) / 2)
-    /// edges[i].length == 2
-    /// 0 <= fromi, toi < n
-    /// All pairs (fromi, toi) are distinct.
+    /// * 2 <= n <= 10^5
+    /// * 1 <= edges.length <= min(10^5, n * (n - 1) / 2)
+    /// * edges\[i].length == 2
+    /// * 0 <= fromi, toi < n
+    /// * All pairs (fromi, toi) are distinct.
     ///
     pub fn find_smallest_set_of_vertices(n: i32, edges: Vec<Vec<i32>>) -> Vec<i32> {
         let indegree: HashSet<i32> = edges.iter().map(|edge| edge[1]).collect();
@@ -1122,83 +1198,6 @@ impl Solution {
             diff.push(*i);
         }
         diff
-    }
-
-    /// ## Jump Game III
-    ///
-    /// Given an array of non-negative integers arr, you are initially positioned at start index of the array. 
-    /// When you are at index i, you can jump to i + arr[i] or i - arr[i], check if you can reach to any index 
-    /// with value 0.
-    ///
-    /// Notice that you can not jump outside of the array at any time.
-    ///
-    /// Example 1:
-    /// ----------
-    /// Input: arr = [4,2,3,0,3,1,2], start = 5
-    /// 
-    /// Output: true
-    /// 
-    /// Explanation: 
-    /// All possible ways to reach at index 3 with value 0 are: 
-    /// index 5 -> index 4 -> index 1 -> index 3 
-    /// index 5 -> index 6 -> index 4 -> index 1 -> index 3 
-    ///
-    /// Example 2:
-    /// ----------
-    /// Input: arr = [4,2,3,0,3,1,2], start = 0
-    /// 
-    /// Output: true 
-    /// 
-    /// Explanation: 
-    /// One possible way to reach at index 3 with value 0 is: 
-    /// index 0 -> index 4 -> index 1 -> index 3
-    /// 
-    /// Example 3:
-    /// ----------
-    /// Input: arr = [3,0,2,1,2], start = 2
-    /// 
-    /// Output: false
-    /// 
-    /// Explanation: There is no way to reach at index 1 with value 0.
-    ///
-    /// Constraints:
-    /// ----------
-    /// 1 <= arr.length <= 5 * 104
-    /// 0 <= arr[i] < arr.length
-    /// 0 <= start < arr.length
-    pub fn can_reach(arr: Vec<i32>, start: i32) -> bool {
-        fn get_connections(index: i32, arr: &Vec<i32>) -> Vec<i32> {
-            let mut pos: Vec<i32> = Vec::new();
-            if index + arr[index as usize] < arr.len() as i32 {
-                pos.push(index + arr[index as usize]);
-            }
-            if index - arr[index as usize] >= 0 {
-                pos.push(index - arr[index as usize]);
-            }
-            pos
-        }
-
-        let mut deq: VecDeque<i32> = VecDeque::new();
-        let mut visited: HashSet<i32> = HashSet::new();
-        deq.push_back(start);
-        visited.insert(start);
-        
-        while !deq.is_empty() {
-            let idx = deq.pop_front().unwrap();
-            if arr[idx as usize] == 0 {
-                return true;
-            }
-            for ni in get_connections(idx, &arr) {
-                if visited.contains(&ni) {
-                    continue;
-                }
-
-                visited.insert(ni);
-                deq.push_back(ni);
-            }
-        }
-
-        false
     }
 
     /// ## Detonate the Maximum Bombs
@@ -1218,11 +1217,11 @@ impl Solution {
     ///
     /// Example 1:
     /// ---------
-    /// Input: bombs = [[2,1,3],[6,1,4]]
-    /// 
-    /// Output: 2
-    /// 
-    /// Explanation:
+    /// ```
+    /// let bombs = vec![vec![2,1,3],vec![6,1,4]];
+    /// assert_eq!(Solution::max_bombs(bombs), 2);
+    /// ```
+    /// *Explanation*:
     /// The above figure shows the positions and ranges of the 2 bombs.
     /// If we detonate the left bomb, the right bomb will not be affected.
     /// But if we detonate the right bomb, both bombs will be detonated.
@@ -1230,20 +1229,20 @@ impl Solution {
     /// 
     /// Example 2:
     /// ----------
-    /// Input: bombs = [[1,1,5],[10,10,5]]
-    ///
-    /// Output: 1
-    /// 
-    /// Explanation:
+    /// ```
+    /// let bombs = vec![vec![1,1,5],vec![10,10,5]];
+    /// assert_eq!(Solution::max_bombs(bombs), 1);
+    /// ```
+    /// *Explanation* :
     /// Detonating either bomb will not detonate the other bomb, so the maximum number of bombs that can be detonated is 1.
     /// 
     /// Example 3:
     /// ----------
-    /// Input: bombs = [[1,2,3],[2,3,1],[3,4,2],[4,5,3],[5,6,4]]
-    ///
-    /// Output: 5
-    /// 
-    /// Explanation:
+    /// ```
+    /// let bombs = vec![vec![1,2,3],vec![2,3,1],vec![3,4,2], vec![4,5,3],vec![5,6,4]];
+    /// assert_eq!(Solution::max_bombs(bombs), 5);
+    /// ```
+    /// *Explanation*:
     /// The best bomb to detonate is bomb 0 because:
     /// - Bomb 0 detonates bombs 1 and 2. The red circle denotes the range of bomb 0.
     /// - Bomb 2 detonates bomb 3. The blue circle denotes the range of bomb 2.
@@ -1252,9 +1251,9 @@ impl Solution {
     ///
     /// Constraints:
     /// -----------
-    /// 1 <= bombs.length <= 100
-    /// bombs[i].length == 3
-    /// 1 <= xi, yi, ri <= 105
+    /// * 1 <= bombs.length <= 100
+    /// * bombs\[i].length == 3
+    /// * 1 <= xi, yi, ri <= 105
     ///
     pub fn maximum_detonation(bombs: Vec<Vec<i32>>) -> i32 {
         unimplemented!()   
@@ -1282,7 +1281,7 @@ impl Solution {
     ///
     /// Example 2:
     /// ----------
-    /// Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
+    /// let beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
     /// 
     /// Output: 0
     /// 
@@ -1293,8 +1292,8 @@ impl Solution {
     /// 1 <= beginWord.length <= 10
     /// endWord.length == beginWord.length
     /// 1 <= wordList.length <= 5000
-    /// wordList[i].length == beginWord.length
-    /// beginWord, endWord, and wordList[i] consist of lowercase English letters.
+    /// wordList\[i].length == beginWord.length
+    /// beginWord, endWord, and wordList\[i] consist of lowercase English letters.
     /// beginWord != endWord
     /// All the words in wordList are unique.
     ///
@@ -1302,10 +1301,419 @@ impl Solution {
         unimplemented!()    
     }
 
+    /// ## 1249. Minimum Remove to Make Valid Parentheses
+    /// https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/
+    ///
+    /// Given a string s of '(' , ')' and lowercase English characters.
+    ///
+    /// Your task is to remove the minimum number of parentheses ( '(' or ')', in any positions ) 
+    /// so that the resulting parentheses string is valid and return any valid string.
+    ///
+    /// Formally, a parentheses string is valid if and only if:
+    ///
+    /// It is the empty string, contains only lowercase characters, or
+    /// It can be written as AB (A concatenated with B), where A and B are valid strings, or
+    /// It can be written as (A), where A is a valid string.
+    ///
+    /// Example 1:
+    /// ----------
+    /// ```
+    /// let s = "lee(t(c)o)de)".to_string();
+    /// assert_eq!(Solution::min_remove_to_make_valid(s), "lee(t(c)o)de".to_string());
+    /// ```
+    /// Explanation: "lee(t(co)de)" , "lee(t(c)ode)" would also be accepted.
+    ///
+    /// Example 2:
+    /// ----------
+    /// ```
+    /// let s = "a)b(c)d".to_string();
+    /// assert_eq!(Solution::min_remove_to_make_valid(s), "ab(c)d".to_string());
+    /// ```
+    ///
+    /// Example 3:
+    /// ----------
+    /// ```
+    /// let s = "))((".to_string();
+    /// assert_eq!(Solution::min_remove_to_make_valid(s), "".to_string());
+    /// ```
+    /// **Explanation**: An empty string is also valid.
+    ///
+    /// Constraints:
+    /// -----------
+    /// 1 <= s.length <= 105
+    /// s\[i] is either'(' , ')', or lowercase English letter.
+    ///
+    pub fn min_remove_to_make_valid(s: String) -> String {
+
+        fn is_parenthesis(c: char) -> bool {
+            c == '(' || c == ')'
+        }
+
+        fn is_valid_string(s: &String) -> bool {
+            let s: Vec<char> = s.chars().collect();
+            let mut stack: Vec<char> = vec![];
+            for i in 0..s.len() {
+                if !is_parenthesis(s[i]) {
+                    continue;
+                }
+                if s[i] == '(' {
+                    stack.push(s[i]);
+                } else {
+                    if stack.is_empty() {
+                        return false;
+                    }
+                    stack.pop();
+                    if s[i] != ')' {
+                        return false;
+                    }
+                }
+            }
+
+            stack.len() == 0 
+        }
+        let mut deque: VecDeque<String> = VecDeque::new();
+        let mut visited: HashSet<String> = HashSet::new();
+        deque.push_back(s.clone());
+        visited.insert(s.clone());
+
+        while !deque.is_empty() {
+            let curr = deque.pop_front().unwrap();
+            if is_valid_string(&curr) {
+                return curr;
+            }
+
+            let s: Vec<char> = curr.chars().collect();
+            for i in 0..s.len() {
+                if !is_parenthesis(s[i]) {
+                    continue;
+                }
+
+                let mut new_str = s[..i].to_vec();
+                new_str.append(&mut s[i+1..].to_vec());
+                let new_str = new_str.iter().collect::<String>();
+                if !visited.contains(&new_str) {
+                    visited.insert(new_str.clone());
+                    deque.push_back(new_str.clone());
+                }
+            }
+        }
+
+        "".to_string()
+    }
+
+    /// ## Network Delay Time
+    /// https://leetcode.com/problems/network-delay-time/description/
+    ///
+    /// You are given a network of n nodes, labeled from 1 to n. You are also given times, a list of travel times 
+    /// as directed edges times[i] = (ui, vi, wi), where ui is the source node, vi is the target node, and wi is 
+    /// the time it takes for a signal to travel from source to target.
+    ///
+    /// We will send a signal from a given node k. Return the minimum time it takes for all the n nodes to receive 
+    /// the signal. If it is impossible for all the n nodes to receive the signal, return -1.
+    ///
+    /// Example 1:
+    /// ------------
+    /// ```
+    /// let times = vec![vec![2,1,1],vec![2,3,1],vec![3,4,1]]; let n = 4; let k = 2;
+    /// assert_eq!(Solution::network_delay_time(times, n, k), 2);
+    /// ```
+    ///
+    /// Example 2:
+    /// ------------
+    /// ```
+    /// let times = vec![vec![1,2,1]]; let n = 2; let k = 1;
+    /// assert_eq!(Solution::network_delay_time(times, n, k), 1);
+    /// ```
+    ///
+    /// Example 3:
+    /// ------------
+    /// ```
+    /// let times = vec![vec![1,2,1]]; let n = 2; let k = 2;
+    /// assert_eq!(Solution::network_delay_time(times, n, k), -1);
+    /// ```
+    ///
+    /// Constraints:
+    /// ------------
+    /// * 1 <= k <= n <= 100
+    /// * 1 <= times.length <= 6000
+    /// * times\[i].length == 3
+    /// * 1 <= ui, vi <= n
+    /// * ui != vi
+    /// * 0 <= wi <= 100
+    /// * All the pairs (ui, vi) are unique. (i.e., no multiple edges.)
+    pub fn network_delay_time(times: Vec<Vec<i32>>, n: i32, k: i32) -> i32 {
+        let mut heap: BinaryHeap<(Reverse<i32>, i32)> = BinaryHeap::new();
+        let mut visited: HashSet<i32> = HashSet::new();
+        let mut graph: HashMap<i32, Vec<(i32, i32)>> = HashMap::new();
+        for i in 0..times.len() {
+            let item = &times[i];
+            graph.entry(item[0]).or_insert(vec![])
+                .push((item[1], item[2]));
+        }
+        let mut max_cost: i32 = 0;
+        // Insert the start node to the heap
+        heap.push((Reverse(0), k));
+
+        while !heap.is_empty() {
+            // Pop from the heap with min weight edge
+            let (dist, node) = heap.pop().unwrap();
+            if visited.contains(&node) {
+                continue;
+            }
+
+            max_cost = dist.0;
+            visited.insert(node);
+
+            if !graph.contains_key(&node) {
+                continue;
+            }
+            for &i in graph.get(&node).unwrap().iter() {
+                let (n1, c1) = i;
+                if !visited.contains(&n1) {
+                    heap.push((Reverse(dist.0 + c1), n1));
+                }
+            }
+        }
+        // If every node is visited then return the max_cost
+        if visited.len() as i32 == n {max_cost} else {-1} 
+    }
+
+    fn network_delay_time_ii(times: Vec<Vec<i32>>, n: i32, k: i32) -> i32 {
+        let mut graph: HashMap<i32, Vec<(i32, i32)>> = HashMap::new();
+        for i in 0..times.len() {
+            let item = &times[i];
+            graph.entry(item[0]).or_insert(vec![])
+                .push((item[1], item[2]));
+        }
+        let mut heap: BinaryHeap<(Reverse<i32>, i32)> = BinaryHeap::new();
+        let mut travel_time: Vec<i32> = vec![i32::MAX; n as usize];
+        travel_time[(k-1) as usize] = 0;
+        heap.push((Reverse(0), k));
+        // If new shorter dist found update the distance in travel_time and put it into 
+        // priority queue
+        while !heap.is_empty() {
+            let (dist, node) = heap.pop().unwrap();
+            // If already shorter distance found, skip the current node
+            if dist.0 > travel_time[node as usize] {
+                continue;
+            }
+
+            if graph.contains_key(&node) {
+                for i in graph.get(&node).unwrap().iter() {
+                    let (n1, c1) = i.clone();
+                    if dist.0 + c1 < travel_time[n1 as usize] {
+                        travel_time[n1 as usize] = dist.0 + c1;
+                        heap.push((Reverse(travel_time[n1 as usize]), n1));
+                    }
+                }
+            }
+        }
+
+        // Calculate the max time
+        let ans = travel_time.into_iter().max().unwrap();
+        if ans == i32::MAX {-1} else {ans}
+    }
+
+    /// ## 994. Rotting Oranges
+    /// https://leetcode.com/problems/rotting-oranges/description/
+    ///
+    /// You are given an m x n grid where each cell can have one of three values:
+    ///
+    /// * 0 representing an empty cell,
+    /// * 1 representing a fresh orange, or
+    /// * 2 representing a rotten orange.
+    //// Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.
+    ///
+    /// Return the minimum number of minutes that must elapse until no cell has a fresh orange. If this is 
+    /// impossible, return -1.
+    ///
+    /// Example 1:
+    /// ----------
+    /// ```
+    /// let grid = vec![vec![2,1,1],vec![1,1,0],vec![0,1,1]];
+    /// assert_eq!(Solution::rotten_oranges(grid), 4);
+    /// ```
+    ///
+    /// Example 2:
+    /// ----------
+    /// ```
+    /// let grid = vec![vec![2,1,1],vec![0,1,1],vec![1,0,1]];
+    /// assert_eq!(Solution::oranges_rotting(grid), -1);
+    /// ```
+    /// Explanation: The orange in the bottom left corner (row 2, column 0) is never rotten, because rotting 
+    /// only happens 4-directionally.
+    ///
+    /// Example 3:
+    /// ----------
+    /// ```
+    /// let grid = vec![vec![0,2]];
+    /// assert_eq!(Solution::oranges_rotting(grid), 0);
+    /// ```
+    /// Explanation: Since there are already no fresh oranges at minute 0, the answer is just 0.
+    ///
+    /// Constraints:
+    /// ------------
+    /// * m == grid.length
+    /// * n == grid\[i].length
+    /// * 1 <= m, n <= 10
+    /// * grid\[i]\[j] is 0, 1, or 2.
+    pub fn oranges_rotting(mut grid: Vec<Vec<i32>>) -> i32 {
+        let rows: i32 = grid.len() as i32;
+        let cols: i32 = grid[0].len() as i32;
+        let mut no_fresh_oranges = 0;
+        let mut minutes: i32 = 0;
+        let mut  deq: VecDeque<(i32, i32)> = VecDeque::new();
+        let directions: Vec<(i32, i32)> = vec![(-1,0),(0,1),(0,-1),(1,0)];
+
+        for r in 0..rows {
+            for c in 0..cols {
+                if grid[r as usize][c as usize] == 2 {
+                    deq.push_back((r as i32, c as i32));
+                } else if grid[r as usize][c as usize] == 1 {
+                    no_fresh_oranges += 1;
+                }
+            }
+        }
+
+        while !deq.is_empty() && no_fresh_oranges != 0 {
+            let mut size = deq.len();
+            while size > 0 {
+                let (row, col) = deq.pop_front().unwrap();
+                for (dx, dy) in &directions {
+                    let new_x = row + dx;
+                    let new_y = col + dy;
+                    if new_x >= 0 && new_x < rows && new_y >= 0 && new_y < cols &&
+                        grid[(new_x) as usize][(new_y) as usize] == 1 {
+                            grid[(new_x) as usize][(new_y) as usize] = 2;
+                            no_fresh_oranges -= 1;
+                            deq.push_back((new_x, new_y));
+                        }
+                }
+                size -= 1;
+            }
+            minutes += 1;
+        }
+
+        if no_fresh_oranges == 0 {minutes} else {-1}
+    }
+
+    /// ## 332. Reconstruct Itinerary
+    /// https://leetcode.com/problems/reconstruct-itinerary/description/
+    ///
+    /// You are given a list of airline tickets where tickets[i] = [fromi, toi] represent the departure and the 
+    /// arrival airports of one flight. Reconstruct the itinerary in order and return it.
+    ///
+    /// All of the tickets belong to a man who departs from "JFK", thus, the itinerary must begin with "JFK". 
+    /// If there are multiple valid itineraries, you should return the itinerary that has the smallest lexical 
+    /// order when read as a single string.
+    ///
+    /// For example, the itinerary ["JFK", "LGA"] has a smaller lexical order than ["JFK", "LGB"].
+    /// You may assume all tickets form at least one valid itinerary. You must use all the tickets once and only once.
+    ///
+    /// Example 1:
+    /// ------------
+    /// ```
+    /// let tickets = vec![["MUC","LHR"], ["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]];
+    /// let ans = vec!["JFK","MUC","LHR","SFO","SJC"];
+    /// assert_eq!(Solution::find_itinerary(tickets), ans);
+    /// ```
+    ///
+    /// Example 2:
+    /// ----------
+    /// ```
+    /// let tickets = vec![["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]];
+    /// let ans = vec!["JFK","ATL","JFK","SFO","ATL","SFO"];
+    /// assert_eq!(Solution::find_itinerary(tickets), ans);
+    /// ```
+    /// *Explanation*: Another possible reconstruction is \["JFK","SFO","ATL","JFK","ATL","SFO"] but it is 
+    /// larger in lexical order.
+    ///
+    /// Constraints:
+    /// ------------
+    /// * 1 <= tickets.length <= 300
+    /// * tickets[i].length == 2
+    /// * from_i.length == 3
+    /// * to_i.length == 3
+    /// * from_i and to_i consist of uppercase English letters.
+    /// * from_i != to_i
+    ///
+    pub fn find_itinerary(tickets: Vec<Vec<String>>) -> Vec<String> {
+        let mut graph: HashMap<&str, BinaryHeap<Reverse<&str>>> = HashMap::new();
+        for ticket in tickets.iter() {
+            graph
+                .entry(&ticket[0])
+                .or_insert_with(BinaryHeap::new)
+                .push(Reverse(&ticket[1]));
+        }
+        let mut answer: Vec<String> = Vec::with_capacity(tickets.len() + 1);
+        let mut stack: Vec<&str> = vec!["JFK"];
+        while let Some(src) = stack.last() {
+            if let Some(dsts) = graph.get_mut(src) {
+                if !dsts.is_empty() {
+                    if let Some(dst) = dsts.pop() {
+                        stack.push(dst.0);
+                    }
+                    continue;
+                }
+            }
+            if let Some(last) = stack.pop() {
+                answer.push(last.to_string());
+            }
+        }
+        answer.reverse();
+        answer
+    }
+
+    pub fn find_itinerary_rec(tickets: Vec<Vec<String>>) -> Vec<String> {
+        // TODO: Fix test cases
+        type Graph<'a> = HashMap<&'a str, Vec<&'a str>>;
+        trait GraphFunc {
+            fn dfs(&mut self, src: &str, ans: &mut Vec<String>);
+        }
+
+        impl GraphFunc for Graph<'_> {
+            fn dfs(&mut self, src: &str, ans: &mut Vec<String>) {
+                // Iterate child nodes
+                while self.contains_key(src) && self.get(src).unwrap().len() > 0 {
+                    let top = self.get_mut(src).unwrap().pop().unwrap();
+                    self.dfs(top, ans);
+                }
+                ans.push(src.to_string());
+            }
+        }
+
+        let mut graph: Graph = HashMap::new();
+        let mut ans: Vec<String> = vec![];
+        
+        // Build the graph
+        for ticket in tickets.iter() {
+            graph.entry(&ticket[0]).or_insert_with(Vec::new).push(&ticket[1]);
+        }
+        // Sort the itinerary in lexical order
+        for conn in graph.values_mut() {
+            conn.sort_by(|a, b| b.cmp(a));
+        }
+        graph.dfs("JFK", &mut ans);
+        // reconstruct the route backwards
+        ans.reverse();
+        ans
+        
+    }
+
+    fn fib(n: u32, fibs: &mut HashMap<u32, u32>) -> u32 {
+        if !fibs.contains_key(&n) {
+            let a = Solution::fib(n - 1, fibs);
+            let b = Solution::fib(n - 2, fibs);
+            fibs.insert(n, a + b);
+        }
+        *fibs.get(&n).unwrap()
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
     use super::*;
 
     fn vec_str_to_string(str: Vec<&str>) -> Vec<String> {
@@ -1314,12 +1722,61 @@ mod tests {
     }
 
     #[test]
+    fn test_find_itinerary() {
+        let tickets = vec![["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]];
+        let tickets: Vec<Vec<String>> = tickets.iter().map(|ticket| vec_str_to_string(ticket.to_vec())).collect();
+        let ans = vec!["JFK","ATL","JFK","SFO","ATL","SFO"];
+        assert_eq!(Solution::find_itinerary_rec(tickets), ans);
+
+        let tickets = vec![["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]];
+        let tickets = tickets.iter().map(|ticket| vec_str_to_string(ticket.to_vec())).collect();
+        let ans = vec!["JFK","ATL","JFK","SFO","ATL","SFO"];
+        assert_eq!(Solution::find_itinerary_rec(tickets), ans);
+
+        // let tickets = vec![["JFK","KUL"],["JFK","NRT"],["NRT","JFK"]];
+        // let tickets: Vec<Vec<String>> = tickets.iter().map(|ticket| vec_str_to_string(ticket.to_vec())).collect();
+        // let ans = vec!["JFK","KUL"];
+        // assert_eq!(Solution::find_itinerary_rec(tickets), ans);
+    }
+    #[test]
+    fn test_oranges_rotting() {
+        let grid = vec![vec![2,1,1],vec![1,1,0],vec![0,1,1]];
+        assert_eq!(Solution::oranges_rotting(grid), 4);
+
+        let grid: Vec<Vec<i32>> = vec![vec![2,1,1],vec![0,1,1],vec![1,0,1]];
+        assert_eq!(Solution::oranges_rotting(grid), -1);
+    }
+
+    #[test]
+    fn test_network_delay_time() {
+        let times = vec![vec![1,2,1]]; let n = 2; let k = 2;
+        assert_eq!(Solution::network_delay_time_ii(times, n, k), -1);
+
+        let times = vec![vec![1,2,1]]; let n = 2; let k = 1;
+        assert_eq!(Solution::network_delay_time(times, n, k), 1);
+
+        let times = vec![vec![2,1,1],vec![2,3,1],vec![3,4,1]]; let n = 4; let k = 2;
+        assert_eq!(Solution::network_delay_time_ii(times, n, k), 2);
+    }
+    #[test]
+    fn test_min_remove_to_make_valid() {
+        let s = "lee(t(c)o)de)".to_string();
+        assert_eq!(Solution::min_remove_to_make_valid(s), "lee(t(c)o)de".to_string());
+
+        let s = "))((".to_string();
+        assert_eq!(Solution::min_remove_to_make_valid(s), "".to_string());
+
+        let s = "a)b(c)d".to_string();
+        assert_eq!(Solution::min_remove_to_make_valid(s), "ab(c)d".to_string());
+    }
+
+    #[test]
     fn test_find_circle_num() {
         let is_connected = vec![vec![1,1,0],vec![1,1,0],vec![0,0,1]];
-        assert_eq!(Solution::find_circle_num(is_connected), 2);
+        assert_eq!(Solution::find_circle_num_ii(is_connected), 2);
 
         let is_connected = vec![vec![1,0,0], vec![0,1,0], vec![0,0,1]];
-        assert_eq!(Solution::find_circle_num(is_connected), 3);
+        assert_eq!(Solution::find_circle_num_ii(is_connected), 3);
     }
 
     #[test]
@@ -1513,18 +1970,6 @@ mod tests {
         let end_gene = "AAACGGTA".to_string(); 
         let bank = vec_str_to_string(vec!["AACCGGTA","AACCGCTA","AAACGGTA"]);
         assert_eq!(Solution::min_mutation(start_gene, end_gene, bank), 2);
-    }
-
-    #[test]
-    fn test_can_reach() {
-        let arr = vec![4,2,3,0,3,1,2]; let start = 5;
-        assert_eq!(Solution::can_reach(arr, start), true);
-        
-        let arr = vec![4,2,3,0,3,1,2]; let start = 0;
-        assert_eq!(Solution::can_reach(arr, start), true);
-    
-        let arr = vec![3,0,2,1,2]; let start = 2;
-        assert_eq!(Solution::can_reach(arr, start), false);
     }
 
     #[test]

@@ -203,12 +203,9 @@ impl LRUCache {
                 self.map.remove(&tail.as_ref().borrow().key);
                 self.lru.remove(tail);
 
-                self.map.insert(key, node.clone());
-                self.lru.add_front_node(node.clone());
-            } else {
-                self.map.insert(key, node.clone());
-                self.lru.add_front_node(node.clone());
             }
+            self.map.insert(key, node.clone());
+            self.lru.add_front_node(node.clone());
             node
         };
         if self.lru.tail.is_none() {

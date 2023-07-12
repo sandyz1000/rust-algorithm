@@ -598,6 +598,113 @@ impl Solution {
         is_mirror(root.clone(), root.clone())
     }
 
+    /// ## 2096. Step-By-Step Directions From a Binary Tree Node to Another
+    /// https://leetcode.com/problems/step-by-step-directions-from-a-binary-tree-node-to-another/description/
+    ///
+    /// You are given the root of a binary tree with n nodes. Each node is uniquely assigned a value from 1 to n. 
+    /// You are also given an integer startValue representing the value of the start node s, and a different integer 
+    /// destValue representing the value of the destination node t.
+    ///
+    /// Find the shortest path starting from node s and ending at node t. Generate step-by-step directions of such 
+    /// path as a string consisting of only the uppercase letters 'L', 'R', and 'U'. Each letter indicates a specific 
+    /// direction:
+    ///
+    /// 'L' means to go from a node to its left child node.
+    /// 'R' means to go from a node to its right child node.
+    /// 'U' means to go from a node to its parent node.
+    /// Return the step-by-step directions of the shortest path from node s to node t.
+    ///
+    /// Example 1:
+    /// ----------
+    /// ```
+    /// let root = tree_node!(5, tree_node!(1, tree_node!(3), None), tree_node!(2, tree_node!(6),tree_node!(4));
+    /// let startValue = 3; let destValue = 6;
+    /// assert_eq!(get_directions(root, startValue, destValue), "UURL");
+    /// ```    
+    /// ### Explanation: ### 
+    /// The shortest path is: 3 → 1 → 5 → 2 → 6.
+    ///
+    /// Example 2:
+    /// ----------
+    /// ```
+    /// let root = tree_node!(2,tree_node!(1), None); let startValue = 2; let destValue = 1;
+    /// assert_eq!(get_directions(root, startValue, destValue), "L");
+    /// ```
+    /// ### Explanation:### 
+    /// The shortest path is: 2 → 1.
+    ///
+    /// Constraints:
+    /// ------------
+    /// - The number of nodes in the tree is n.
+    /// - 2 <= n <= 105
+    /// - 1 <= Node.val <= n
+    /// - All the values in the tree are unique.
+    /// - 1 <= startValue, destValue <= n
+    /// - startValue != destValue
+    pub fn get_directions(
+        root: Option<NodeRef>, start_value: i32, dest_value: i32
+    ) -> String {
+        // 1. find path from root to start
+        let mut start_path: Vec<char> = Vec::new();
+        let start_found = Solution::get_path(&root, start_value, &mut start_path);
+        // 2. find path from root to dest
+        let mut end_path: Vec<char> = Vec::new();
+        let end_found = Solution::get_path(&root, dest_value, &mut end_path);
+
+        if !start_found && !end_found {
+            return "".to_string();
+        }
+        // 3. remove common nodes in the path
+        let mut skip = 0;
+        for i in 0..start_path.len().min(end_path.len()) {
+            if start_path[i] == end_path[i] {
+                skip += 1;
+            } else {
+                break
+            }
+        }
+        
+        start_path = start_path[skip..].to_vec();
+        end_path = end_path[skip..].to_vec();
+
+        // 4. revert path to start, and join path with dest
+        let mut path_to_start_rev = vec!['U'; start_path.len()];
+		// join with dest
+        path_to_start_rev.append(&mut end_path);
+        path_to_start_rev.iter().collect()
+        
+    }
+
+    // This will prepare the path from root to node
+    fn get_path(root: &Option<NodeRef>, node_value: i32, path: &mut Vec<char>) -> bool {
+        match root {
+            Some(node) => {
+                let node_borrow = node.borrow();
+                if node_borrow.val == node_value {
+                    return true;
+                }
+                // Explore the left path
+                path.push('L');
+                if Solution::get_path(&node_borrow.left, node_value, path) {
+                    return true;
+                }
+                // Backtrack the last path if not found
+                path.pop();
+
+                // Explore the right path
+                path.push('R');
+                if Solution::get_path(&node_borrow.right, node_value, path) {
+                    return true;
+                }
+                // Backtrack the last path if not found
+                path.pop();
+
+                false
+            }
+            None => false
+        }
+    }
+
 }
 
 

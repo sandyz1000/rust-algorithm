@@ -27,11 +27,6 @@ arrayvec = "0.7.2"
 quickcheck = "1.0.3"
 quickcheck_macros = "1.0.0"
 
-
-[[bin]]
-name = "lru_cache"
-path = "./hashmap/lru_cache.rs"
-
 [[bin]]
 name = "blackjack"
 path = "./blackjack/main.rs"

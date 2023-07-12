@@ -138,7 +138,7 @@ impl Solution {
     /// * 1 <= text1.length, text2.length <= 1000
     /// * text1 and text2 consist of only lowercase English characters.
     pub fn longest_common_subsequence(text1: String, text2: String) -> i32 {
-        fn mememoizer_fn<K1, K2, V, F>(func: F) -> impl FnMut(K1, K2, &Vec<char>, &Vec<char>) -> V
+        fn memoizer_fn<K1, K2, V, F>(func: F) -> impl FnMut(K1, K2, &Vec<char>, &Vec<char>) -> V
             where F: Fn(K1, K2, &Vec<char>, &Vec<char>) -> V,
                 K1: Copy,
                 K2: Copy,
@@ -157,6 +157,11 @@ impl Solution {
                 }
             }
         }
+        
+        let text1: Vec<char> = text1.chars().collect();
+        let text2: Vec<char> = text2.chars().collect();
+        
+        let mut func = memoizer_fn::<usize, usize, i32, _>(find_lcs);
 
         fn find_lcs(
             pos1: usize, pos2: usize, 
@@ -171,7 +176,7 @@ impl Solution {
             let mut ans = 0;
             
             if text1[pos1] == text2[pos2] {
-                ans = 1 + find_lcs(pos1+1, pos2+1, text1, text2);
+                ans = 1 + memoizer_fn(find_lcs)(pos1+1, pos2+1, text1, text2);
                 return ans;
             }
 
@@ -181,10 +186,6 @@ impl Solution {
             ans
         }
         
-        let text1: Vec<char> = text1.chars().collect();
-        let text2: Vec<char> = text2.chars().collect();
-        
-        let mut func = mememoizer_fn::<usize, usize, i32, _>(find_lcs);
         func(0, 0, &text1, &text2)
 
     }
@@ -285,6 +286,43 @@ impl Solution {
     pub fn max_value_of_coins(piles: Vec<Vec<i32>>, k: i32) -> i32 {
         unimplemented!()
     }
+
+
+    pub fn num_decodings(s: String) -> i32 {
+        fn recursive_fn(index: i32, s: &Vec<char>, cache: &mut HashMap<i32, i32>) -> i32 {
+            if cache.contains_key(&index) {
+                return cache[&index];
+            }
+            // if index reach the end of string
+            if index == s.len() as i32{
+                return 1;
+            }
+            
+            if s[index as usize] == '0' {
+                return 0;
+            }
+            
+            if index == s.len() as i32 - 1{
+                return 1;
+            }
+
+            let mut ans = recursive_fn(index + 1, s, cache);
+            let digit = &s[(index as usize)..(index as usize)+2].to_vec().iter().collect::<String>();
+            let digit: i32 = digit.parse().expect("Cannot parse digit");
+            if  digit <= 26 {
+                ans += recursive_fn(index + 2, s, cache);
+            }
+            
+            cache.insert(index, ans);
+            ans
+        }
+
+        let s = s.chars().collect();
+        let mut cache: HashMap<i32, i32> = HashMap::new();
+        recursive_fn(0, &s, &mut cache)
+        
+    }
+
 }
 
 

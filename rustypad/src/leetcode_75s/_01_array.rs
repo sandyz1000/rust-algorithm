@@ -592,6 +592,36 @@ impl Solution {
         -1
     }
 
+    pub fn is_alien_sorted(words: Vec<String>, order: String) -> bool {
+        let order_map: HashMap<char, i32> = order.chars()
+            .enumerate()
+            .map(|(i, c)| (c, i as i32)).collect();
+
+        for i in 0..words.len() -1 {
+            let word1: Vec<char> = words[i].chars().collect();
+            let word2: Vec<char> = words[i+1].chars().collect();
+            for pos in 0..word1.len() {
+
+                // If two consecutive word has unequal character and 
+                // order is reverse return false, cases where ["apple", "app"]
+                if pos >= word2.len() {
+                    return false;
+                }
+                // If the first mismatch character found and 
+                // order is right break the loop
+                if word1[pos] != word2[pos] {
+                    // Also if the second word length < than the first one, return false 
+                    if order_map[&word1[pos]] > order_map[&word2[pos]] {
+                        return false;
+                    }
+
+                    break
+                }
+            }
+        }
+
+        true
+    }
 
 }
 

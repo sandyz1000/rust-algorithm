@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 pub struct UnionFind {
     parent: Vec<usize>,
     group: usize,
@@ -9,19 +11,18 @@ impl UnionFind {
     pub fn new(n: usize) -> Self {
         let parent = (0..n).collect();
         UnionFind {  
-            parent: parent, group: n, n: n
+            parent, group: n, n
         }
     }
 
     pub fn find(&mut self, i: usize) -> usize {
         let j = self.parent[i];
         if i == j {
-            i
-        } else {
-            let k = self.find(j);
-            self.parent[i] = k;
-            k
-        }
+            return i;
+        } 
+        // Recursively find the parent of node in the heirarchy chain
+        self.parent[i] = self.find(j);
+        self.parent[i]
     }
 
     pub fn union(&mut self, mut i: usize, mut j: usize) -> bool {

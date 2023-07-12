@@ -97,7 +97,7 @@ impl Solution {
             ans
         }
 
-        _recurse_max_depth(&root)
+        _iterative_max_depth(&root)
     }
 
     /// ## 226. Invert Binary Tree
@@ -176,12 +176,16 @@ impl Solution {
             return false;
         }
 
-        let (p, q) = (p.clone().unwrap(), q.clone().unwrap());
-        let (pref, qref) = (p.borrow(), q.borrow());
+        if let (Some(p), Some(q)) = (p, q) {
+            let (pref, qref) = (p.borrow(), q.borrow());
+    
+            pref.val == qref.val &&
+            Solution::is_same_tree(pref.left.clone(), qref.left.clone()) && 
+            Solution::is_same_tree(pref.right.clone(), qref.right.clone())
 
-        pref.val == qref.val &&
-        Solution::is_same_tree(pref.left.clone(), qref.left.clone()) && 
-        Solution::is_same_tree(pref.right.clone(), qref.right.clone())
+        } else {
+            false
+        }
     }
 
     /// ## 236. Lowest Common Ancestor of a Binary Tree
@@ -194,27 +198,36 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
-    /// 
-    /// Output: 3
-    /// 
-    /// Explanation: The LCA of nodes 5 and 1 is 3.
+    /// ```
+    /// let root = tree_node!(
+    ///     3,
+    ///     tree_node!(
+    ///         5, 
+    ///         tree_node!(6), 
+    ///         tree_node!(2, tree_node!(7), tree_node!(4))
+    ///     ),
+    ///     tree_node!(1, tree_node!(0), tree_node!(8))
+    /// );
+    /// let (p, q) = (tree_node!(5), tree_node!(1));
+    /// assert_eq!(Solution::lowest_common_ancestor(root.clone(), p, q), tree_node!(3));
+    /// ```
+    /// **Explanation**: The LCA of nodes 5 and 1 is 3.
     ///
     /// Example 2:
     /// ----------
     /// ```
-    /// let root = vec![3,5,1,6,2,0,8,null,null,7,4]; let p = 5; let q = 4;
-    /// assert_eq!(Solution::lowest_common_ancestor(root, p, q), 5);
+    /// let (p, q) = (tree_node!(5), tree_node!(4));
+    /// assert_eq!(Solution::lowest_common_ancestor(root.clone(), p, q), tree_node!(5));
     /// ```
-    /// 
-    /// Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according 
+    /// **Explanation**: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according 
     /// to the LCA definition.
     ///
     /// Example 3:
     /// ----------
     /// ```
-    /// let root = vec![1,2]; let p = 1; let q = 2;
-    /// assert_eq!(Solution::lowest_common_ancestor(root, p, q), 1);
+    /// let root = tree_node!(1, tree_node!(2), None);
+    /// let (p, q) = (tree_node!(1), tree_node!(2));
+    /// assert_eq!(Solution::lowest_common_ancestor(root.clone(), p, q), tree_node!(1));
     /// ```
     /// 
     fn lowest_common_ancestor(
@@ -224,11 +237,13 @@ impl Solution {
         match root {
             Some(node) => {
                 let n_borrow = node.borrow();
+                // If the current node is either p or q, return the node
                 if n_borrow.val == p.as_ref().unwrap().borrow().val || n_borrow.val == q.as_ref().unwrap().borrow().val {
                     return Some(node.clone());
                 }
-                let left = Solution::lowest_common_ancestor(n_borrow.left.clone(), p.clone(), q.clone());
-                let right = Solution::lowest_common_ancestor(n_borrow.right.clone(), p.clone(), q.clone());
+                let left: Option<NodeRef> = Solution::lowest_common_ancestor(n_borrow.left.clone(), p.clone(), q.clone());
+                let right: Option<NodeRef> = Solution::lowest_common_ancestor(n_borrow.right.clone(), p.clone(), q.clone());
+                // If both the left and right node has been found, return the node
                 if left.is_some() && right.is_some() {
                     return Some(node.clone());
                 }
@@ -505,7 +520,6 @@ impl Solution {
 #[cfg(test)]
 mod test {
     use super::*;
-
 
     #[test]
     fn test_max_depth() {

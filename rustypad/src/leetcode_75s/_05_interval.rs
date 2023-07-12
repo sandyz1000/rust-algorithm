@@ -7,7 +7,45 @@ use std::collections::BinaryHeap;
 struct Solution;
 
 impl Solution {
-    
+    /// ## 435. Non-overlapping Intervals
+    /// https://leetcode.com/problems/non-overlapping-intervals/
+    ///
+    /// Given an array of intervals intervals where intervals[i] = [starti, endi], return the minimum number of 
+    /// intervals you need to remove to make the rest of the intervals non-overlapping.
+    ///
+    /// Example 1:
+    /// ---------
+    /// ```    
+    /// let intervals = vec![vec![1,2],vec![2,3],vec![3,4],vec![1,3]];
+    /// assert_eq!(Solution::erase_overlap_intervals(intervals), 1);
+    /// ```
+    /// Explanation: [1,3] can be removed and the rest of the intervals are non-overlapping.
+    ///
+    /// Example 2:
+    /// ---------
+    /// let intervals = vec![vec![1,2],vec![1,2],vec![1,2]];
+    /// assert_eq!(Solution::erase_overlap_intervals(intervals), 2);
+    /// ```
+    /// Explanation: You need to remove two [1,2] to make the rest of the intervals non-overlapping.
+    ///
+    /// Example 3:
+    /// ---------
+    /// ```
+    /// let intervals = vec![vec![1,2],vec![2,3]];
+    /// assert_eq!(Solution::erase_overlap_intervals(intervals), 0);
+    /// ```
+    /// Explanation: You don't need to remove any of the intervals since they're already non-overlapping.
+    ///
+    ///
+    /// Constraints:
+    /// ------------
+    /// * 1 <= intervals.length <= 105
+    /// * intervals[i].length == 2
+    /// * -5 * 104 <= starti < endi <= 5 * 104
+    pub fn erase_overlap_intervals(intervals: Vec<Vec<i32>>) -> i32 {
+        unimplemented!()
+    }
+
     /// ## Meeting Rooms II
     /// https://leetcode.com/problems/meeting-rooms-ii/description/
     ///
@@ -42,7 +80,7 @@ impl Solution {
         for interval in intervals.iter() {
             let (start, end) = (interval[0], interval[1]);
             if let Some(Reverse(top)) = heapq.peek() {
-                if !heapq.is_empty() && start >= *top {
+                if start >= *top {
                     // If start at the same time as other meeting end
                     heapq.pop();
                     meeting_room -= 1;
@@ -64,14 +102,20 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// - Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
-    /// - Output: [[1,6],[8,10],[15,18]]
+    /// ```
+    /// let intervals = vec![vec![1,3],vec![2,6],vec![8,10],vec![15,18]];
+    /// let res = vec![vec![1,6],vec![8,10],vec![15,18]];
+    /// assert_eq!(Solution::merge(intervals), res);
+    /// ```
     /// - Explanation: Since intervals [1,3] and [2,6] overlap, merge them into [1,6].
     ///
     /// Example 2:
     /// ----------
-    /// - Input: intervals = [[1,4],[4,5]]
-    /// - Output: [[1,5]]
+    /// ```
+    /// let intervals = vec![vec![1,4],vec![4,5]];
+    /// let res = vec![vec![1,5]];
+    /// assert_eq!(Solution::merge(intervals), res);
+    /// ```
     /// - Explanation: Intervals [1,4] and [4,5] are considered overlapping.
     ///  
     /// Constraints:
@@ -80,19 +124,21 @@ impl Solution {
     /// intervals[i].length == 2
     /// 0 <= starti <= endi <= 104
     ///
-    fn merge_interval(mut intervals: Vec<[i32; 2]>) -> Vec<[i32; 2]> {
-        let mut ans: Vec<[i32; 2]> = Vec::new();
+    pub fn merge(mut intervals: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+        let mut ans: Vec<Vec<i32>> = vec![];
+        // Sort by start time
         intervals.sort_by(|a, b| a[0].cmp(&b[0]));
-        ans.push(intervals[0]);
-        // check if last end-time > current start_time; then merge into mergelist
-        for item in intervals.iter().skip(1) {
-            let start = item[0];
-            let end = item[1];
-            let last = ans.last().unwrap();
-            if start <= last[1] {
-                ans.push([last[0], end.max(last[1])]);
+        ans.push(intervals[0].clone());
+
+        for i in 1..intervals.len() {
+            let prev = ans.last().unwrap().clone();
+            
+            // merge if current start < prev end
+            if intervals[i][0] <= prev[1] {
+                ans.pop();
+                ans.push(vec![prev[0], prev[1].max(intervals[i][1])]);
             } else {
-                ans.push([start, end]);
+                ans.push(intervals[i].clone());
             }
         }
         ans
@@ -177,6 +223,11 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::Solution;
+    
+    #[test]
+    fn test_erase_overlap_intervals() {
+
+    }
 
     #[test]
     fn test_no_of_meeting_rooms() {
@@ -201,11 +252,15 @@ mod tests {
 
     #[test]
     fn test_merge_interval() {
-        let intervals = vec![[1, 3], [2, 6], [8, 10], [15, 18]];
+        let intervals = vec![vec![1, 3], vec![2, 6], vec![8, 10], vec![15, 18]];
         assert_eq!(
-            Solution::merge_interval(intervals),
+            Solution::merge(intervals),
             vec![[1, 6], [8, 10], [15, 18]]
         );
+
+        let intervals = vec![vec![1,4],vec![4,5]];
+        let res = vec![vec![1,5]];
+        assert_eq!(Solution::merge(intervals), res);
     }
 
     #[test]

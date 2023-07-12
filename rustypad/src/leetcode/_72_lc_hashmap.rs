@@ -5,54 +5,6 @@ use std::collections::{HashMap, HashSet};
 struct Solution;
 
 impl Solution {
-    /// ## Group Anagrams
-    /// https://leetcode.com/problems/group-anagrams/
-    ///
-    /// Given an array of strings strs, group the anagrams together. You can return the answer in any order.
-    ///
-    /// An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase,
-    /// typically using all the original letters exactly once.
-    ///
-    /// Example 1:
-    /// ----------
-    /// Input: strs = ["eat","tea","tan","ate","nat","bat"]
-    /// Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
-    ///
-    /// Example 2:
-    /// ----------
-    /// Input: strs = [""]
-    /// Output: [[""]]
-    ///
-    /// Example 3:
-    /// ----------
-    /// Input: strs = ["a"]
-    /// Output: [["a"]]
-    ///
-    /// Constraints:
-    /// ------------
-    /// 1 <= strs.length <= 104
-    /// 0 <= strs[i].length <= 100
-    /// strs[i] consists of lowercase English letters.
-    ///
-    /// For each word in strs sort the word and insert the word with the sorted key
-    /// return values
-    pub fn group_anagrams(strs: Vec<String>) -> Vec<Vec<String>> {
-        let mut ans: Vec<Vec<String>> = vec![];
-        let mut hm: HashMap<Vec<char>, Vec<String>> = HashMap::new();
-
-        for s in strs {
-            let mut key: Vec<char> = s.chars().collect();
-            key.sort();
-            hm.entry(key).or_insert(vec![]).push(s.clone());
-        }
-
-        for (_, value) in hm.iter_mut() {
-            value.sort();
-            ans.push(value.clone());
-        }
-        ans
-    }
-
     /// Given an integer array arr, count how many elements x there are, such that x + 1 is also in arr.
     /// If there are duplicates in arr, count them separately.
     ///
@@ -767,16 +719,6 @@ mod tests {
         let s = "ababbc".to_string();
         let k = 2;
         assert_eq!(Solution::longest_substring(s, k), 5);
-    }
-
-    #[test]
-    fn test_group_anagrams() {
-        let strs: Vec<String> = vec!["eat", "tea", "tan", "ate", "nat", "bat"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect();
-        let res = vec![vec!["bat"], vec!["nat", "tan"], vec!["ate", "eat", "tea"]];
-        assert_eq!(Solution::group_anagrams(strs), res);
     }
 
     #[test]

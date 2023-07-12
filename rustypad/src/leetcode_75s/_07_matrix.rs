@@ -185,7 +185,41 @@ impl Solution {
     /// - n == matrix[i].length
     /// - 1 <= m, n <= 10
     pub fn spiral_order(matrix: Vec<Vec<i32>>) -> Vec<i32> {
-        unimplemented!()
+        let mut ans = vec![];
+        let rows = matrix.len(); let cols = matrix[0].len();
+        let (mut left, mut right) = (0, cols -1);
+        let (mut up, mut down) = (0, rows -1);
+        let mut size = 0;
+        while size < rows * cols {
+            // For top-left to top-right
+            for i in left..right {
+                ans.push(matrix[up][i]);
+                size += 1;
+            }
+            // For top-right to bottom-right
+            for i in up..down {
+                ans.push(matrix[i][right]);
+                size += 1;
+            }
+
+            // For bottom-right to bottom-left
+            for i in (left+1..right+1).rev() {
+                ans.push(matrix[down][i]);
+                size += 1;
+            } 
+
+            // For bottom-left to top-left
+            for i in (up+1..down+1).rev() {
+                ans.push(matrix[i][left]);
+                size += 1;
+            }
+            
+            left += 1;
+            right -= 1;
+            up += 1;
+            down -=1;
+        }
+        ans
     }
 
     /// ## 48. Rotate Image
