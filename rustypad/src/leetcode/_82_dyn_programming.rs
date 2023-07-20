@@ -58,7 +58,7 @@ impl Solution {
     /// Solving question i will earn you pointsi points but you will be unable to solve each of the next 
     /// brainpoweri questions. If you skip question i, you get to make the decision on the next question.
     ///
-    /// For example, given questions = [[3, 2], [4, 3], [4, 4], [2, 5]]:
+    /// For example, given questions = \[\[2, \[3, 2], \[4, 3], \[4, 4], \[2, 5]]:
     /// If question 0 is solved, you will earn 3 points but you will be unable to solve questions 1 and 2.
     /// If instead, question 0 is skipped and question 1 is solved, you will earn 4 points but you will be 
     /// unable to solve questions 2 and 3.
@@ -92,10 +92,33 @@ impl Solution {
     /// Constraints:
     /// ----------- 
     /// - 1 <= questions.length <= 105
-    /// - questions[i].length == 2
+    /// - questions\[i].length == 2
     /// - 1 <= pointsi, brainpoweri <= 105
     pub fn most_points(questions: Vec<Vec<i32>>) -> i64 {
-        unimplemented!()
+        fn get_max_points(
+            idx: i32, 
+            questions: &Vec<Vec<i32>>,
+            cache: &mut HashMap<i32, i64>
+        ) -> i64 {
+            // Base case
+            if idx >= questions.len() as i32 {
+                return 0;
+            }
+            if cache.contains_key(&idx) {
+                return cache[&idx];
+            }
+            // Score at current index
+            let mut score = questions[idx as usize][0] as i64 + 
+                get_max_points(idx + questions[idx as usize][1] + 1, questions, cache);
+            
+            // Skip the current index
+            score = score.max(get_max_points(idx+1, questions, cache));
+            cache.insert(idx, score);
+            cache[&idx]
+        } 
+
+        let mut cache: HashMap<i32, i64> = HashMap::new();
+        get_max_points(0, &questions, &mut cache)
     }
 
     /// ## 1143. Longest Common Subsequence
@@ -329,6 +352,16 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_most_points(){
+        let questions = vec![vec![1,1],vec![2,2],vec![3,3],vec![4,4],vec![5,5]];
+        assert_eq!(Solution::most_points(questions), 7);
+
+        let questions = vec![vec![3,2], vec![4,3], vec![4,4], vec![2,5]];
+        assert_eq!(Solution::most_points(questions), 5);
+    }
+    
     #[test]
     fn test_delete_and_earn() {
         let nums = vec![3,4,2];

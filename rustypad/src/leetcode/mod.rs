@@ -20,7 +20,7 @@ mod _20_min_path_sum;
 mod _21_the_maze;
 mod _22_earliest_friends;
 mod _23_merge_k_sorted_arr;
-mod _24_merge_k_list;
+mod _24_quick_sort;
 // mod _25_skip_list;
 mod _26_longest_increasing_subseq;
 mod _27_shortest_dist_from_all_buildings;

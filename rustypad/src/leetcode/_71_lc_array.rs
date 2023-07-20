@@ -367,7 +367,22 @@ impl Solution {
         unimplemented!()
     }
 
-    
+    pub fn score_of_parentheses(s: String) -> i32 {
+        let mut stack: Vec<i32> = vec![];
+        let s: Vec<char> = s.chars().collect();
+        for i in 0..s.len() {
+            if s[i] == '(' {
+                stack.push(0);
+            } else {
+                // pop the previous score
+                let prev_score = stack.pop().unwrap();
+                // The min score on observing '(' is 1
+                let length  = stack.len() ;
+                stack[length - 1] += std::cmp::max(prev_score * 2, 1);
+            }
+        }
+        stack.pop().unwrap()
+    }
 }
 
 

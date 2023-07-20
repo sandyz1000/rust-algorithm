@@ -436,17 +436,20 @@ impl Solution {
     ///
     /// Given the root of a binary tree, return the maximum path sum of any non-empty path.
     ///
-    ///
     /// Example 1:
     /// ------------
-    /// - Input: root = [1,2,3]
-    /// - Output: 6
+    /// ```
+    /// let root = tree!(1, tree!(2), tree!(3));
+    /// assert_eq!(Solution::max_path_sum(root), 6);
+    /// ```
     /// - Explanation: The optimal path is 2 -> 1 -> 3 with a path sum of 2 + 1 + 3 = 6.
     ///
     /// Example 2:
     /// ------------
-    /// - Input: root = [-10,9,20,null,null,15,7]
-    /// - Output: 42
+    /// ```
+    /// let root = tree!(-10, tree!(9), tree!(20, tree!(15), tree!(7)));
+    /// assert_eq!(Solution::max_path_sum(root), 42);
+    /// ```
     /// - Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.
     ///
     /// Constraints:
@@ -460,31 +463,32 @@ impl Solution {
 
     /// ## 572. Subtree of Another Tree
     ///
-    ///
-    ///
     /// Given the roots of two binary trees root and subRoot, return true if there is a subtree of 
     /// root with the same structure and node values of subRoot and false otherwise.
     ///
     /// A subtree of a binary tree tree is a tree that consists of a node in tree and all of this 
     /// node's descendants. The tree tree could also be considered as a subtree of itself.
     ///
-    ///
     /// Example 1:
     /// -----------
-    /// Input: root = [3,4,5,1,2], subRoot = [4,1,2]
-    /// Output: true
+    /// ```
+    /// let root = [3,4,5,1,2]; let subRoot = [4,1,2];
+    /// assert_eq!(Solution::is_subtree(root, subRoot), true);
+    /// ```
     ///
     /// Example 2:
     /// ------------
-    /// Input: root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]
-    /// Output: false
-    ///
+    /// ```
+    /// let root = [3,4,5,1,2,null,null,null,null,0]; let subRoot = [4,1,2]
+    /// assert_eq!(Solution::is_subtree(root, subRoot), false);
+    /// ```
+    /// 
     /// Constraints:
     /// --------------
-    /// The number of nodes in the root tree is in the range [1, 2000].
-    /// The number of nodes in the subRoot tree is in the range [1, 1000].
-    /// -104 <= root.val <= 104
-    /// -104 <= subRoot.val <= 104
+    /// * The number of nodes in the root tree is in the range [1, 2000].
+    /// * The number of nodes in the subRoot tree is in the range [1, 1000].
+    /// * -104 <= root.val <= 104
+    /// * -104 <= subRoot.val <= 104
     ///
     fn is_identical(root: Option<NodeRef>, sub_root: Option<NodeRef>) -> bool {
         match (root, sub_root) {

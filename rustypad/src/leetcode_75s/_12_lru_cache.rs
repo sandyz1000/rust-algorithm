@@ -101,27 +101,27 @@ impl DoubleLinkedList {
 
     fn remove(&mut self, node: NodeRef) {
         // Remove the node, the node prev and next have 4 cases
-        // - If the node is in between
-        // - If the node is head node
-        // - If the node is tail node
-        // - If the DLL has no node, i.e. both head and tail is none
-        let next = node.as_ref().borrow().next.clone();
-        let prev = node.as_ref().borrow().prev.clone();
+        let next: Option<NodeRef> = node.borrow().next.clone();
+        let prev: Option<NodeRef> = node.borrow().prev.clone();
         match (next, prev) {
+            // - If the node is in between
             (Some(next), Some(prev)) => {
                 prev.borrow_mut().next = Some(next.clone());
                 next.borrow_mut().prev = Some(prev.clone());
             }
+            // - If the node is head node
             (Some(next), None) => {
                 // This is the head case
                 next.borrow_mut().prev.take();
                 self.head.replace(next.clone());
             }
+            // - If the node is tail node
             (None, Some(prev)) => {
                 // This is the tail case
                 prev.borrow_mut().next.take();
                 self.tail.replace(prev.clone());
             }
+            // - If the DLL has only one node
             (None, None) => {
                 self.head.take();
                 self.tail.take();

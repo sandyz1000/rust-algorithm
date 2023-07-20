@@ -46,7 +46,58 @@ impl Solution {
     /// - s is guaranteed to be a valid input.
     /// - All the integers in s are in the range [1, 300].
     pub fn decode_string(s: String) -> String {
-        unimplemented!()
+        // Two stack one for int and other for character
+        // Parse digit and create valid integer
+        // Look for opening bracket and add into stack
+        // If closing bracket; then pop the int from stack and pop every chacter until [
+        // Build the string and insert to character arr
+
+        let mut int_stack: Vec<i32> = vec![];
+        let mut char_stack: Vec<char> = vec![];
+        let s: Vec<char> = s.chars().into_iter().collect();
+        let mut c = 0;
+        while c < s.len() {
+            let mut curr_digit = 0;
+            while s[c].is_digit(10) {
+                curr_digit = curr_digit * 10 + s[c].to_digit(10).unwrap() as i32;
+                c+= 1;
+            }
+            if curr_digit != 0 {
+                int_stack.push(curr_digit);
+                continue;
+            }
+
+            if s[c] == ']' {
+                // Pop all the character from the character stack
+                let mut ans = Vec::<char>::new();
+                while !char_stack.is_empty() {
+                    if *char_stack.last().unwrap() == '[' {
+                        char_stack.pop();
+                        break;
+                    }
+                    if char_stack.last().unwrap().is_alphabetic() {
+                        ans.push(char_stack.pop().unwrap());
+                    }
+                }
+                ans.reverse();
+                let ans: String = ans.iter().collect();
+                // Pop the int from the int stack
+                let ans_int = int_stack.pop().unwrap();
+                let mut c1 = String::new();
+                for i in 0..ans_int {
+                    c1.push_str(ans.as_str());
+                }
+                char_stack.extend(c1.chars());
+
+            } else {
+                char_stack.push(s[c]);
+            }
+
+            c+= 1;
+        }
+        
+        char_stack.iter().collect()
+
     }
 }
 

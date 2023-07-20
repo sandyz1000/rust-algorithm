@@ -50,7 +50,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_longest_substring() {
+    fn test_find_kth_largest() {
         let nums = vec![3,2,1,5,6,4];
         let k = 2;
         assert_eq!(Solution::find_kth_largest(nums, k), 5);

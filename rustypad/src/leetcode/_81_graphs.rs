@@ -1092,23 +1092,27 @@ impl Solution {
     ///
     /// Note that the starting point is assumed to be valid, so it might not be included in the bank.
     ///
-    ///
     /// Example 1:
     /// ----------
-    /// Input: startGene = "AACCGGTT", endGene = "AACCGGTA", bank = ["AACCGGTA"]
-    /// Output: 1
-    ///
+    /// ```
+    /// let startGene = "AACCGGTT".to_string(); let endGene = "AACCGGTA".to_string(); 
+    /// let bank = vec!["AACCGGTA"];
+    /// assert_eq!(Solution::min_mutation(startGene, endGene, bank), 1);
+    /// ```
+    /// 
     /// Example 2:
     /// ----------
-    /// Input: startGene = "AACCGGTT", endGene = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]
-    /// Output: 2
+    /// ```
+    /// let startGene = "AACCGGTT".to_string(); let endGene = "AAACGGTA".to_string(); 
+    /// let bank = vec!["AACCGGTA","AACCGCTA","AAACGGTA"];
+    /// assert_eq!(Solution::min_mutation(startGene, endGene, bank), 2);
+    /// ```
     ///
     /// Constraints:
     /// -----------
-    /// 0 <= bank.length <= 10
-    /// startGene.length == endGene.length == bank[i].length == 8
-    /// startGene, endGene, and bank[i] consist of only the characters ['A', 'C', 'G', 'T'].
-    ///
+    /// * 0 <= bank.length <= 10
+    /// * startGene.length == endGene.length == bank\[i].length == 8
+    /// * startGene, endGene, and bank\[i] consist of only the characters \['A', 'C', 'G', 'T'].
     pub fn min_mutation(start_gene: String, end_gene: String, bank: Vec<String>) -> i32 {
         fn directions(start: Vec<char>) -> Vec<Vec<char>> {
             let mut ans: Vec<Vec<char>> = Vec::new();
@@ -1708,6 +1712,93 @@ impl Solution {
         }
         *fibs.get(&n).unwrap()
     }
+    
+    /// ## 310. Minimum Height Trees
+    /// https://leetcode.com/problems/minimum-height-trees/description/
+    ///
+    /// A tree is an undirected graph in which any two vertices are connected by exactly one path. In other words, 
+    /// any connected graph without simple cycles is a tree.
+    ///
+    /// Given a tree of n nodes labelled from 0 to n - 1, and an array of n - 1 edges where edges[i] = [ai, bi] 
+    /// indicates that there is an undirected edge between the two nodes ai and bi in the tree, you can choose any 
+    /// node of the tree as the root. When you select a node x as the root, the result tree has height h. 
+    /// Among all possible rooted trees, those with minimum height (i.e. min(h))  are called minimum height trees (MHTs).
+    ///
+    /// Return a list of all MHTs' root labels. You can return the answer in any order.
+    ///
+    /// The height of a rooted tree is the number of edges on the longest downward path between the root and a leaf.
+    ///
+    /// Example 1:
+    /// ----------
+    /// ```
+    /// let n = 4; let edges = vec![vec![1,0],vec![1,2],vec![1,3]];
+    /// assert_eq!(Solution::find_min_height_trees(n, edges), vec![1]);
+    /// ```
+    /// Explanation: As shown, the height of the tree is 1 when the root is the node with label 1 which is the only MHT.
+    ///
+    /// Example 2:
+    /// ----------
+    /// ```
+    /// let n = 6; let edges = vec![vec![3,0],vec![3,1],vec![3,2],vec![3,4],vec![5,4]];
+    /// assert_eq!(Solution::find_min_height_trees(n, edges), vec![3,4]);
+    /// ```
+    ///
+    /// Constraints:
+    /// ------------
+    /// * 1 <= n <= 2 * 104
+    /// * edges.length == n - 1
+    /// * 0 <= ai, bi < n
+    /// * ai != bi
+    /// * All the pairs (ai, bi) are distinct.
+    /// * The given input is guaranteed to be a tree and there will be no repeated edges.
+    fn find_min_height_trees(mut n: i32, edges: Vec<Vec<i32>>) -> Vec<i32> {
+        // TODO: Fix test cases
+        // Base case: min no of nodes >= 2
+        if edges.len() <= 2 {
+            return edges.into_iter().flatten().collect();
+        }
+        // Build graph
+        let mut graph: HashMap<i32, HashSet<i32>> = HashMap::new();
+        for edge in edges {
+            graph.entry(edge[0]).or_insert_with(HashSet::new).insert(edge[1]);
+            graph.entry(edge[1]).or_insert_with(HashSet::new).insert(edge[0]);
+        }
+        
+        // Add all outer leaf node to deque
+        let mut deque: VecDeque<i32> = VecDeque::new();
+        for (key, children) in graph.iter() {
+            if children.len() == 1 {
+                deque.push_back(*key);
+            }
+        }
+        
+        // bfs traversal with remove the connection
+        let ans: Vec<i32> = vec![];
+        while n > 2 && !deque.is_empty() {
+            let mut size = deque.len();
+            // Remove all leaf nodes since it will be remove
+            n -= size as i32;
+            while size > 0 {
+                let leaf = deque.pop_front().unwrap();
+                // Remove the only child of leaf node
+                let children = graph.get(&leaf).unwrap();
+                let neighbour = children.iter().next().unwrap().clone();
+                
+                // Remove the current node from the graph
+                let g = graph.get_mut(&neighbour).unwrap();
+                g.remove(&leaf);
+
+                // Check if any neighbour present
+                if g.len() == 1 {
+                    deque.push_back(neighbour);
+                }
+                size -= 1;
+            }
+        }
+
+        ans
+    }
+
 }
 
 #[cfg(test)]
@@ -1719,6 +1810,15 @@ mod tests {
     fn vec_str_to_string(str: Vec<&str>) -> Vec<String> {
         let mut str = str.iter().map(|s| s.to_string()).collect::<Vec<String>>();
         str
+    }
+
+    #[test]
+    fn test_find_min_height_trees() {
+        let n = 4; let edges = vec![vec![1,0],vec![1,2],vec![1,3]];
+        assert_eq!(Solution::find_min_height_trees(n, edges), vec![1]);
+
+        let n = 6; let edges = vec![vec![3,0],vec![3,1],vec![3,2],vec![3,4],vec![5,4]];
+        assert_eq!(Solution::find_min_height_trees(n, edges), vec![3,4]);
     }
 
     #[test]

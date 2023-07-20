@@ -43,55 +43,70 @@ impl Solution {
     }
 
     /// Longest Substring with At Least K Repeating Characters
-    ///
     /// https://leetcode.com/problems/longest-substring-with-at-least-k-repeating-characters/
     ///
     /// Given a string s and an integer k, return the length of the longest substring of s such
     /// that the frequency of each character in this substring is greater than or equal to k.
     ///
+    ///
     /// Example 1:
     /// ----------
-    /// Input: s = "aaabb", k = 3
-    /// Output: 3
+    /// ```
+    /// let s = "aaabb".to_string(); let k = 3;
+    /// assert_eq!(Solution::longest_substring(s, k), 3);
+    /// ```
     /// Explanation: The longest substring is "aaa", as 'a' is repeated 3 times.
     ///
     /// Example 2:
     /// ----------
-    /// Input: s = "ababbc", k = 2
-    /// Output: 5
+    /// ```
+    /// let s = "ababbc".to_string(); let k = 2;
+    /// assert_eq!(Solution::longest_substring(s, k), 5);
+    /// ```
     /// Explanation: The longest substring is "ababb", as 'a' is repeated 2 times and 'b' is repeated
     /// 3 times.
     ///  
     /// Constraints:
     /// ------------
-    /// 1 <= s.length <= 104
-    /// s consists of only lowercase English letters.
-    /// 1 <= k <= 105
+    /// * 1 <= s.length <= 104
+    /// * s consists of only lowercase English letters.
+    /// * 1 <= k <= 105
     ///
+    /// Time Complexity : O(N^2)
     pub fn longest_substring(s: String, k: i32) -> i32 {
-        let mut counts: HashMap<char, usize> = HashMap::new();
-        let mut left = 0;
-        let mut ans = 0;
-        let s: Vec<char> = s.chars().collect();
-        for right in 0..s.len() {
-            let x = counts.entry(s[right]).or_insert(0);
-            *x += 1;
-
-            while counts.len() as i32 > k {
-                let left_char = s[left];
-                *counts.get_mut(&left_char).unwrap() -= 1;
-
-                if counts[&left_char] == 0 {
-                    counts.remove(&left_char);
-                }
-
-                left += 1;
+        fn get_max_substring_len(s: &Vec<char>, start: i32, end: i32, k: i32) -> i32 {
+            // If substring length is less than k then return 0
+            if end < k {
+                return 0;
             }
 
-            ans = ans.max((right - left) as i32 + 1);
+            // Count the frequncy of each character in the substring
+            let mut char_freq: Vec<i32> = vec![0; 26];
+            for i in start..end {
+                char_freq[s[i as usize] as usize - 'a' as usize] += 1;
+            } 
+            
+            // If any invalid character is found i.e. character whose count < k then break 
+            for mid in start..end {
+                if char_freq[s[mid as usize] as usize - 'a' as usize] >= k {
+                    continue;
+                }
+                let mut mid_next = mid + 1;
+                while mid_next < end && char_freq[s[mid_next as usize] as usize - 'a' as usize] < k {
+                    mid_next += 1;
+                }
+                return std::cmp::max(
+                    get_max_substring_len(s, start, mid, k), 
+                    get_max_substring_len(s, mid_next, end, k)
+                );
+                
+            }
+            (end - start)
         }
+        
+        let s: Vec<char> = s.chars().collect();
+        get_max_substring_len(&s, 0, s.len() as i32, k)
 
-        ans
     }
 
     /// ## 2248. Intersection of Multiple Arrays

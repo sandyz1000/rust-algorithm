@@ -39,16 +39,38 @@ struct Codec {
  * If you need a mutable reference, change it to `&mut self` instead.
  */
 impl Codec {
+    // Encode the string to format with prefix of length of string i.e. ["Hello", "World"] can be encoded to "5Hello5World"
     fn new() -> Self {
-        unimplemented!()
+        Self {  }
     }
 	
     fn encode(&self, strs: Vec<String>) -> String {
-        unimplemented!()
+        let mut ans = String::new();
+        for s in strs {
+            let length = s.len() as u8;  //  convert to ascii 8-bit
+            ans.push(length as char);
+            ans.push_str(&s);
+        }
+
+        ans
     }
 	
     fn decode(&self, s: String) -> Vec<String> {
-        unimplemented!()      
+        let mut ans: Vec<String> = vec![];
+        let mut c = 0;
+        let s: Vec<char> = s.chars().collect();
+        while c < s.len() {
+            let substr_len = s[c] as u8 as usize;
+            c += 1;
+
+            if c + substr_len <= s.len() {
+                let slice = &s[c..c+substr_len];
+                ans.push(slice.into_iter().collect());
+            }
+            c += substr_len;
+        }
+
+        ans
     }
 }
 
@@ -279,7 +301,30 @@ impl Solution {
     /// * 1 <= s.length <= 1000
     /// * s consist of only digits and English letters.
     pub fn longest_palindrome(s: String) -> String {
-        unimplemented!()    
+        // TODO: Fix text cases
+        fn get_max_length(mut start: i32, mut end: i32, s: &Vec<char>, max_length: &mut i32, max_start: &mut i32) {
+            while start > -1 && end < s.len() as i32 && s[start as usize] == s[end as usize] {
+                start -= 1;
+                end += 1;
+            }
+
+            // Return new max_length
+            if *max_length < end - start + 1 {
+                *max_length = end - start + 1;
+                *max_start = start + 1;
+            }
+        }
+
+        let s: Vec<char> = s.chars().collect();
+        let mut max_length = 0;
+        let mut start = 0;
+        for i in 0..s.len() {
+            get_max_length(i as i32, i as i32, &s, &mut max_length, &mut start);
+            get_max_length(i as i32, (i + 1) as i32, &s, &mut max_length, &mut start);
+        }
+
+        let ans = s[(start as usize)..(start+max_length) as usize].iter().collect::<String>();
+        ans
     }
 
     /// ## 647. Palindromic Substrings
@@ -311,7 +356,20 @@ impl Solution {
     /// * s consists of lowercase English letters.
     ///
     pub fn count_substrings(s: String) -> i32 {
-        unimplemented!()
+        // Expand from center
+        let s: Vec<char> = s.chars().collect();
+        let count_palindrome = |mut left: i32, mut right: i32| -> i32 {
+            let mut count = 0;
+            while left >= 0 && right < s.len() as i32 && s[left as usize] == s[right as usize] {
+                count += 1;
+                left -= 1;
+                right += 1;
+            }
+
+            count
+        };
+
+        (0..s.len()).map(|i| count_palindrome(i as i32, i as i32) + count_palindrome(i as i32, (i + 1) as i32)).sum()
     }
 
     /// ## Group Anagrams
@@ -362,12 +420,88 @@ impl Solution {
         ans
     }
 
+    /// ## 424. Longest Repeating Character Replacement
+    /// https://leetcode.com/problems/longest-repeating-character-replacement/description/
+    ///
+    /// You are given a string s and an integer k. You can choose any character of the string and change it to 
+    /// any other uppercase English character. You can perform this operation at most k times.
+    ///
+    /// Return the length of the longest substring containing the same letter you can get after performing the 
+    /// above operations.
+    ///
+    /// Example 1:
+    /// ----------
+    /// ```
+    /// let s = "ABAB".to_string(); let k = 2;
+    /// assert_eq!(Solution::character_replacement(s, k), 4);
+    /// ```
+    /// *Explanation*: Replace the two 'A's with two 'B's or vice versa.
+    ///
+    /// Example 2:
+    /// ----------
+    /// ```
+    /// let s = "AABABBA".to_string(); let k = 1;
+    /// assert_eq!(Solution::character_replacement(s, k), 4);
+    /// ```
+    /// *Explanation*: Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+    /// The substring "BBBB" has the longest repeating letters, which is 4.
+    /// There may exists other ways to achive this answer too.
+    ///
+    /// Constraints:
+    /// ------------
+    /// * 1 <= s.length <= 105
+    /// * s consists of only uppercase English letters.
+    /// * 0 <= k <= s.length
+    ///
+    pub fn character_replacement(s: String, k: i32) -> i32 {
+        let mut max_length: i32 = 0;
+        let mut max_count = 0;
+        let mut left: i32 = 0;
+        let s: Vec<char> = s.chars().collect();
+        // This will maintain the char count in the current window
+        let mut char_dict: Vec<i32> = vec![0; 26];
+        for right in 0..s.len() {
+            char_dict[s[right] as usize - 'A' as usize] += 1;
+            max_count = max_count.max(char_dict[s[right] as usize - 'A' as usize]);
+            // If the complement char is > k, move the left pointer  
+            while (right as i32) - left - max_count + 1 > k {
+                char_dict[s[left as usize] as usize - 'A' as usize] -= 1;
+                left += 1;
+            }
+            max_length = std::cmp::max(max_length, (right as i32) - left + 1);
+        }
+        max_length
+    }
+
 }
 
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_encode_decode() {
+        let codec = Codec::new();
+        // Test Case 1
+        let dummy_input = vec!["Hello".to_string(), "World".to_string()];
+        let ans = codec.encode(dummy_input.clone());
+        assert_eq!(codec.decode(ans), dummy_input);
+
+        // Test Case 2
+        let dummy_input = vec!["".to_string()];
+        let ans = codec.encode(dummy_input.clone());
+        assert_eq!(codec.decode(ans), dummy_input);
+    }
+
+    #[test]
+    fn test_character_replacement() {
+        let s = "ABAB".to_string(); let k = 2;
+        assert_eq!(Solution::character_replacement(s, k), 4);
+
+        let s = "AABABBA".to_string(); let k = 1;
+        assert_eq!(Solution::character_replacement(s, k), 4);
+    }
 
     #[test]
     fn test_group_anagrams() {

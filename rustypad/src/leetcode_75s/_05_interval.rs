@@ -23,6 +23,7 @@ impl Solution {
     ///
     /// Example 2:
     /// ---------
+    /// ```
     /// let intervals = vec![vec![1,2],vec![1,2],vec![1,2]];
     /// assert_eq!(Solution::erase_overlap_intervals(intervals), 2);
     /// ```
@@ -42,8 +43,19 @@ impl Solution {
     /// * 1 <= intervals.length <= 105
     /// * intervals[i].length == 2
     /// * -5 * 104 <= starti < endi <= 5 * 104
-    pub fn erase_overlap_intervals(intervals: Vec<Vec<i32>>) -> i32 {
-        unimplemented!()
+    pub fn erase_overlap_intervals(mut intervals: Vec<Vec<i32>>) -> i32 {
+        intervals.sort_by(|x, y| x[1].cmp(&y[1]));
+        let mut end = intervals[0][1];
+        let mut count = 0;
+        for i in 1..intervals.len() {
+            // Current start < prev end then overlap
+            if intervals[i][0] < end {
+                count += 1;
+            } else {
+                end = intervals[i][1];
+            }
+        }
+        count
     }
 
     /// ## Meeting Rooms II
@@ -226,7 +238,14 @@ mod tests {
     
     #[test]
     fn test_erase_overlap_intervals() {
+        let intervals = vec![vec![1,2],vec![2,3],vec![3,4],vec![1,3]];
+        assert_eq!(Solution::erase_overlap_intervals(intervals), 1);
+        
+        let intervals = vec![vec![1,2],vec![2,3]];
+        assert_eq!(Solution::erase_overlap_intervals(intervals), 0);
 
+        let intervals = vec![vec![1,2],vec![1,2],vec![1,2]];
+        assert_eq!(Solution::erase_overlap_intervals(intervals), 2);
     }
 
     #[test]

@@ -1,5 +1,5 @@
 #![allow(unused)]
-use std::{collections::HashMap, hash::Hash};
+use std::{collections::{HashMap, HashSet, VecDeque}, hash::Hash};
 
 struct Solution;
 
@@ -188,24 +188,24 @@ impl Solution {
     ///
     pub fn climb_stairs(n: i32) -> i32 {
         let mut memoizer: HashMap<i32, i32> = HashMap::new();
-        fn f(curr_sum: i32, n: i32, memoizer: &mut HashMap<i32, i32>) -> i32 {
-            if n == curr_sum {
+        fn func(curr_idx: i32, n: i32, memoizer: &mut HashMap<i32, i32>) -> i32 {
+            if n == curr_idx {
                 return 1;
             } 
-            if curr_sum > n {
+            if curr_idx > n {
                 return 0;
             }
             
-            if memoizer.contains_key(&curr_sum) {
-                return memoizer[&curr_sum];
+            if memoizer.contains_key(&curr_idx) {
+                return memoizer[&curr_idx];
             }
 
-            let ans = f(curr_sum + 1, n, memoizer) + f(curr_sum + 2, n, memoizer);
-            memoizer.insert(curr_sum, ans);
+            let ans = func(curr_idx + 1, n, memoizer) + func(curr_idx + 2, n, memoizer);
+            memoizer.insert(curr_idx, ans);
             ans
         };
 
-        f(0, n, &mut memoizer)
+        func(0, n, &mut memoizer)
     }
 
     /// ## Coin Change
@@ -242,12 +242,15 @@ impl Solution {
     /// Constraints:
     /// -----------
     /// - 1 <= coins.length <= 12
-    /// - 1 <= coins[i] <= 231 - 1
+    /// - 1 <= coins\[i] <= 231 - 1
     /// - 0 <= amount <= 104
     pub fn coin_change(coins: Vec<i32>, amount: i32) -> i32 {
         fn func(coins: &Vec<i32>, amount: i32, cache: &mut HashMap<i32, i32>) -> i32 {
             if amount == 0 {
                 return 0;
+            }
+            if amount < 0 {
+                return -1;
             }
             if cache.contains_key(&amount) {
                 return cache[&amount];
@@ -256,16 +259,22 @@ impl Solution {
             let mut ans = i32::MAX;
             
             for i in (0..coins.len()).rev() {
-                if coins[i] < amount {
-                    ans = ans.min(1 + func(coins, amount - coins[i], cache));
+                if coins[i] > amount {
+                    continue;
+                }
+                let res: i32 = func(coins, amount - coins[i], cache);
+                if res != -1 {
+                    ans = ans.min(1 + res);
                 }
             }
-            
-            ans
+
+            ans = if ans != i32::MAX { ans } else {-1};
+            cache.insert(amount, ans);
+            cache[&amount]
         }
+        
         let mut cache: HashMap<i32, i32> = HashMap::new();
-        let ans = func(&coins, amount, &mut cache);
-        if ans == i32::MAX { -1 } else {ans}
+        func(&coins, amount, &mut cache)
     }
 
     /// ## Longest Increasing Subsequence
@@ -340,7 +349,7 @@ impl Solution {
     ///  
     /// Example 3:
     /// ----------
-    /// ````
+    /// ```
     /// let s = "catsandog".to_string(); 
     /// let wordDict = ["cats","dog","sand","and","cat"].iter().map(|x| x.to_string()).collect();
     /// assert_eq!(Solution::word_break(s, wordDict), false);
@@ -348,13 +357,35 @@ impl Solution {
     ///
     /// Constraints:
     /// -----------
-    /// 1 <= s.length <= 300
-    /// 1 <= wordDict.length <= 1000
-    /// 1 <= wordDict[i].length <= 20
-    /// s and wordDict[i] consist of only lowercase English letters.
-    /// All the strings of wordDict are unique.
+    /// * 1 <= s.length <= 300
+    /// * 1 <= wordDict.length <= 1000
+    /// * 1 <= wordDict\[i].length <= 20
+    /// * s and wordDict\[i] consist of only lowercase English letters.
+    /// * All the strings of wordDict are unique.
     pub fn word_break(s: String, word_dict: Vec<String>) -> bool {
-        unimplemented!()
+        let words: HashSet<String> = word_dict.into_iter().collect();
+        let mut queue: VecDeque<usize> = VecDeque::new();
+        let mut seen: HashSet<usize> = HashSet::new();
+        queue.push_back(0);
+
+        while let Some(start) = queue.pop_front() {
+            if start == s.len() {
+                return true;
+            }
+
+            for end in start + 1..=s.len() {
+                if seen.contains(&end) {
+                    continue;
+                }
+
+                if words.contains(&s[start..end]) {
+                    queue.push_back(end);
+                    seen.insert(end);
+                }
+            }
+        }
+
+        false
     }
 
     /// ## 198. House Robber
@@ -389,7 +420,7 @@ impl Solution {
     /// Constraints:
     /// -----------
     /// - 1 <= nums.length <= 100
-    /// - 0 <= nums[i] <= 400
+    /// - 0 <= nums\[i] <= 400
     ///
     pub fn rob(nums: Vec<i32>) -> i32 {
         fn fn_rob(idx: i32, nums: &Vec<i32>, cache: &mut HashMap<i32, i32>) -> i32 {
@@ -445,13 +476,15 @@ impl Solution {
     ///
     /// Example 3:
     /// ----------- 
-    /// - Input: nums = [1,2,3]
-    /// - Output: 3
-    ///
+    /// ```
+    /// let nums = vec![1,2,3];
+    /// assert_eq!(Solution::rob_ii(nums), 3);
+    /// ```
+    /// 
     /// Constraints:
     /// -----------
     /// - 1 <= nums.length <= 100
-    /// - 0 <= nums[i] <= 1000
+    /// - 0 <= nums\[i] <= 1000
     ///
     pub fn rob_ii(nums: Vec<i32>) -> i32 {
 
@@ -574,6 +607,18 @@ impl Solution {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_coin_change() {
+        let coins = vec![1,2,5]; let amount = 11;
+        assert_eq!(Solution::coin_change(coins, amount), 3);
+
+        let coins = vec![2]; let amount = 3;
+        assert_eq!(Solution::coin_change(coins, amount), -1);
+        
+        let coins = vec![1]; let amount = 0;
+        assert_eq!(Solution::coin_change(coins, amount), 0);
+    }
 
     #[test]
     fn test_can_jump() {

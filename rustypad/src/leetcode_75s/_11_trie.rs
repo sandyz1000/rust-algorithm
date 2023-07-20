@@ -76,9 +76,7 @@ impl WordDictionary {
                 if c == '.' {
                     for v in root.children.values() {
                         // Search rest of the word
-                        let word_to_search = word
-                            .chars()
-                            .into_iter().skip(i + 1).collect::<String>();
+                        let word_to_search = word[(i+1)..].to_string();
                         if v.search(word_to_search) {
                             return true;
                         }
