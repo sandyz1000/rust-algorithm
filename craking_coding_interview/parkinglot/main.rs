@@ -1,7 +1,9 @@
-// Parking Lot
-// ----------
-//
-//
+#![allow(unused)]
+
+//! Parking Lot
+//! ----------
+//!
+//!
 // Process Brief :
 //
 // This is a Parking lot system designed using object oriented principles in Python.
@@ -33,7 +35,6 @@
 //
 // - CompanyParked: This operation allows the user to view the list of vehicles parked for a particular company.
 //
-#![allow(unused)]
 use std::cmp::PartialEq;
 use rand::prelude::*;
 use std::collections::HashSet;
