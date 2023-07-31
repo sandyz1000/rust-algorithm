@@ -1,0 +1,10 @@
+[package]
+name = "web"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+cookie = "*"
+form_urlencoded = "*"
+hyper = { version = "*", features = ["full"] }
+tokio = { version = "*", features = ["full"] }

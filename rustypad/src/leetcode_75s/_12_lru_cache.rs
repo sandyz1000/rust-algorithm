@@ -88,6 +88,7 @@ impl DoubleLinkedList {
     /// Add node to the back
     fn add_back_node(&mut self, node: NodeRef) {
         let tail: Option<NodeRef> = self.get_tail();
+        // Make the next of tail to new node
         if tail.is_some() {
             tail.as_ref().unwrap().borrow_mut().next = Some(node.clone());
         }

@@ -132,6 +132,7 @@ Note: This code only focuses on the design part of the use cases. Since you are 
 **Enums and Constants:** Here are the required enums, data types, and constants:
 
 **Code Snippet:**
+
 ```python
 from abc import ABC
 from enum import Enum
@@ -174,13 +175,12 @@ class Constants:
     def __init__(self):
           self.MAX_BOOKS_ISSUED_TO_A_USER = 5
           self.MAX_LENDING_DAYS = 10
-
-
 ```
 
 **Account, Member, and Librarian:** These classes represent various people that interact with our system:
 
 **Code Snippet:**
+
 ```python
 # For simplicity, we are not defining getter and setter functions. The reader can
 # assume that all class attributes are private and accessed through their respective
@@ -293,13 +293,12 @@ class Member(Account):
         BookLending.lend_book(book_item.get_bar_code(), self.get_member_id())
         book_item.update_due_date(datetime.datetime.now().AddDays(Constants.MAX_LENDING_DAYS))
         return True
-
-
 ```
 
 **BookReservation, BookLending, and Fine:** These classes represent a book reservation, lending, and fine collection, respectively.
 
 **Code Snippet:**
+
 ```python
 class BookReservation:
     def __init__(self, creation_date, status, book_item_barcode, member_id):
@@ -335,13 +334,12 @@ class Fine:
 
     def collect_fine(self, member_id, days):
         None
-
-
 ```
 
 **BookItem:** Encapsulating a book item, this class will be responsible for processing the reservation, return, and renewal of a book item.
 
 **Code Snippet:**
+
 ```python
 from abc import ABC
 from .constants import *
@@ -386,13 +384,12 @@ class Rack:
     def __init__(self, number, location_identifier):
         self.__number = number
         self.__location_identifier = location_identifier
-
-
 ```
 
 **Search interface and Catalog:** The Catalog class will implement the Search interface to facilitate searching of books.
 
 **Code Snippet:**
+
 ```python
 from abc import ABC
 
@@ -425,6 +422,4 @@ class Catalog(Search):
     def search_by_author(self, query):
         # return all books containing the string query in their author's name.
         return self.__book_authors.get(query)
-
-
 ```

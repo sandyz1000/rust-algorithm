@@ -56,8 +56,8 @@ name = "lru"
 path = "./lru/main.rs"
 
 [[bin]]
-name = "linkedin"
-path = "./linkedin/main.rs"
+name = "movie_ticket_booking"
+path = "./movie_ticket_booking/main.rs"
 
 [[bin]]
 name = "library_management"
@@ -68,5 +68,5 @@ name = "restaurant_management"
 path = "./restaurant_management/main.rs"
 
 [[bin]]
-name = "stackoverflow"
-path = "./stackoverflow/main.rs"
+name = "stock_exchange"
+path = "./stock_exchange/main.rs"

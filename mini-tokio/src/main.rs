@@ -2,6 +2,8 @@
 //! timer. The goal of this file is to provide some context into how the various
 //! building blocks fit together.
 
+// pub mod tinyhttp;
+
 use futures::future::BoxFuture;
 use std::cell::RefCell;
 use std::future::Future;

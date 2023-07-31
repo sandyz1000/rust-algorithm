@@ -86,7 +86,7 @@ impl Constants {
 
 
 trait Book {
-    fn get_ISBN(&self) -> &str;
+    fn get_isbn(&self) -> &str;
     fn get_title(&self) -> &str;
     fn get_subject(&self) -> &str;
     fn get_publisher(&self) -> &str;
@@ -140,7 +140,7 @@ impl BookItem {
 }
 
 impl Book for BookItem {
-    fn get_ISBN(&self) -> &str {
+    fn get_isbn(&self) -> &str {
         &self.isbn
     }
 

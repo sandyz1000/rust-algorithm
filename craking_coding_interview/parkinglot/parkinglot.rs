@@ -521,14 +521,13 @@ pub trait ParkingSpot<T> {
 }
 
 #[derive(Debug, Clone)]
-pub struct HandicappedSpot<T> {
+pub struct HandicappedSpot<T: Vehicle> {
     number: u32,
     free: bool,
     vehicle: Option<T>,
 }
 
-impl<T> HandicappedSpot<T> 
-where T: Vehicle {
+impl<T: Vehicle> HandicappedSpot<T> {
     pub fn new(number: u32) -> Self {
         HandicappedSpot {
             number,
@@ -538,8 +537,7 @@ where T: Vehicle {
     }
 }
 
-impl<T> ParkingSpot<T> for HandicappedSpot<T> 
-where T: Vehicle {
+impl<T: Vehicle> ParkingSpot<T> for HandicappedSpot<T> {
     fn get_number(&self) -> u32 {
         self.number
     }
@@ -570,7 +568,7 @@ pub struct CompactSpot<T> {
     vehicle: Option<T>,
 }
 
-impl<T> CompactSpot<T> {
+impl<T: Vehicle> CompactSpot<T> {
     pub fn new(number: u32) -> Self {
         CompactSpot {
             number,
@@ -580,8 +578,7 @@ impl<T> CompactSpot<T> {
     }
 }
 
-impl<T> ParkingSpot<T> for CompactSpot<T> 
-where T: Vehicle {
+impl<T: Vehicle> ParkingSpot<T> for CompactSpot<T> {
     fn get_number(&self) -> u32 {
         self.number
     }
@@ -612,7 +609,7 @@ pub struct LargeSpot<T> {
     vehicle: Option<T>,
 }
 
-impl<T> LargeSpot<T> {
+impl<T: Vehicle> LargeSpot<T> {
     pub fn new(number: u32) -> Self {
         LargeSpot {
             number,
@@ -623,8 +620,7 @@ impl<T> LargeSpot<T> {
 }
 
 
-impl<T> ParkingSpot<T> for LargeSpot<T> 
-    where T: Vehicle {
+impl<T: Vehicle> ParkingSpot<T> for LargeSpot<T> {
     fn get_number(&self) -> u32 {
         self.number
     }
@@ -655,7 +651,7 @@ pub struct MotorbikeSpot<T> {
     vehicle: Option<T>,
 }
 
-impl<T> MotorbikeSpot<T> {
+impl<T: Vehicle> MotorbikeSpot<T> {
     pub fn new(number: u32) -> Self {
         MotorbikeSpot {
             number,
@@ -665,8 +661,7 @@ impl<T> MotorbikeSpot<T> {
     }
 }
 
-impl<T> ParkingSpot<T> for MotorbikeSpot<T> 
-where T: Vehicle {
+impl<T: Vehicle> ParkingSpot<T> for MotorbikeSpot<T> {
     fn get_number(&self) -> u32 {
         self.number
     }
@@ -691,13 +686,13 @@ where T: Vehicle {
 }
 
 #[derive(Debug, Clone)]
-pub struct ElectricSpot<T> {
+pub struct ElectricSpot<T: Vehicle> {
     number: u32,
     free: bool,
     vehicle: Option<T>,
 }
 
-impl<T> ElectricSpot<T> {
+impl<T: Vehicle> ElectricSpot<T> {
     pub fn new(number: u32) -> Self {
         ElectricSpot {
             number,
@@ -707,8 +702,7 @@ impl<T> ElectricSpot<T> {
     }
 }
 
-impl<T> ParkingSpot<T> for ElectricSpot<T> 
-    where T: Vehicle {
+impl<T: Vehicle> ParkingSpot<T> for ElectricSpot<T> {
     fn get_number(&self) -> u32 {
         self.number
     }

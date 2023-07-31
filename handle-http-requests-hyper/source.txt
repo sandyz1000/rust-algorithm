@@ -1,0 +1,1 @@
+https://dzx.fr/blog/how-to-handle-http-requests-with-rust-and-hyper/
