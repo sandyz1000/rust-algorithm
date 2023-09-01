@@ -22,7 +22,7 @@ error-chain = "0.12.4"
 colored = "2.0.0"
 log = "0.4.17"
 libc = "0.2.144"
-
+futures = "0.3.28"
 arrayvec = "0.7.2"
 quickcheck = "1.0.3"
 quickcheck_macros = "1.0.0"
@@ -49,6 +49,10 @@ path = "./parkinglot/parkinglot.rs"
 
 [[bin]]
 name = "chess"
+path = "./chess/chess.rs"
+
+[[bin]]
+name = "chess_game"
 path = "./chess/main.rs"
 
 [[bin]]
@@ -70,3 +74,11 @@ path = "./restaurant_management/main.rs"
 [[bin]]
 name = "stock_exchange"
 path = "./stock_exchange/main.rs"
+
+[[bin]]
+name = "crawler"
+path = "./crawler/spider.rs"
+
+[[bin]]
+name = "blockchain"
+path = "./crawler/task.rs"

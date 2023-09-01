@@ -175,9 +175,11 @@ struct Rack {
     location_identifier: String,
 }
 
+/// **BookReservation, BookLending, and Fine:** 
+/// These classes represent a book reservation, lending, and fine collection, respectively.
 #[derive(Debug)]
 struct BookReservation {
-    creation_date: String,
+    creation_date: chrono::NaiveDateTime,
     status: ReservationStatus,
     book_item_barcode: String,
     member_id: u32,
@@ -186,66 +188,37 @@ struct BookReservation {
 
 #[derive(Debug)]
 struct BookLending {
-    creation_date: String,
+    creation_date: chrono::NaiveDateTime,
     due_date: chrono::NaiveDateTime,
-    return_date: Option<String>,
+    return_date: chrono::NaiveDateTime,
     book_item_barcode: String,
     member_id: u32,
 }
 
 #[derive(Debug)]
 struct Fine {
-    creation_date: String,
+    creation_date: chrono::NaiveDateTime,
     book_item_barcode: String,
     member_id: u32,
 }
 
-
+/// **Account, Member, and Librarian:** These classes represent various people 
+/// that interact with our system: 
 trait Account {
     fn reset_password(&self);
 }
 
-impl AccountStatus {
-    fn reset_password(&self) -> bool {
-        unimplemented!()
+impl Account for Librarian {
+    fn reset_password(&self) {
+        todo!()
+    }
+}
+
+impl Account for Member {
+    fn reset_password(&self) {
+        todo!()
     }    
 }
-
-impl BookReservation {
-    fn fetch_reservation_details(barcode: &str) -> Option<BookReservation> {
-        None
-    }
-
-    fn update_status(&self, status: ReservationStatus) -> bool {
-        unimplemented!()
-    }
-
-    fn send_book_available_notification(&self) {
-        unimplemented!()
-    }
-}
-
-
-impl BookLending {
-    fn fetch_lending_details(barcode: &str) -> BookLending {
-        unimplemented!()
-    }
-
-    fn lend_book(barcode: &str, member_id: u32) -> bool {
-        unimplemented!()
-    }
-
-    fn get_due_date(&self) -> chrono::NaiveDateTime {
-        chrono::Utc::now().naive_utc()
-    }
-}
-
-impl Fine {
-    fn collect_fine(member_id: u32, days: u32) -> bool {
-        unimplemented!()
-    }
-}
-
 
 #[derive(Debug)]
 struct Librarian {
@@ -256,11 +229,11 @@ struct Librarian {
 }
 
 impl Librarian {
-    fn add_book_item(&self, book_item: BookItem) {}
+    fn add_book_item(&self, book_item: &BookItem) {}
 
-    fn block_member(&self, member: Member) {}
+    fn block_member(&self, member: &mut Member) {}
 
-    fn un_block_member(&self, member: Member) {}
+    fn un_block_member(&self, member: &mut Member) {}
 }
 
 #[derive(Debug)]
@@ -291,7 +264,7 @@ impl Member {
             return false;
         }
         let book_reservation = BookReservation::fetch_reservation_details(book_item.barcode.as_str());
-        if let Some(reservation) = book_reservation {
+        if let Some(mut reservation) = book_reservation {
             if reservation.member_id != self.id {
                 println!("This book is reserved by another member");
                 return false;
@@ -312,7 +285,7 @@ impl Member {
     fn check_for_fine(&self, book_item_barcode: &str) {
         let book_lending = BookLending::fetch_lending_details(book_item_barcode);
         let due_date = book_lending.due_date;
-        let today = chrono::Utc::now().naive_utc();
+        let today: chrono::NaiveDateTime = chrono::Utc::now().naive_utc();
         if today > due_date {
             let diff = today - due_date;
             let diff_days = diff.num_days();
@@ -333,7 +306,7 @@ impl Member {
     fn renew_book_item(&self, book_item: BookItem) -> bool {
         self.check_for_fine(book_item.barcode.as_str());
         let book_reservation = BookReservation::fetch_reservation_details(book_item.barcode.as_str());
-        if let Some(reservation) = book_reservation {
+        if let Some(mut reservation) = book_reservation {
             if reservation.member_id != self.id {
                 println!("This book is reserved by another member");
                 return false;
@@ -351,7 +324,49 @@ impl Member {
 }
 
 
+impl AccountStatus {
+    fn reset_password(&self) -> bool {
+        unimplemented!()
+    }    
+}
 
+impl BookReservation {
+    fn fetch_reservation_details(barcode: &str) -> Option<BookReservation> {
+        None
+    }
+
+    fn update_status(&mut self, status: ReservationStatus) -> bool {
+        unimplemented!()
+    }
+
+    fn send_book_available_notification(&self) {
+        unimplemented!()
+    }
+}
+
+
+impl BookLending {
+    fn fetch_lending_details(barcode: &str) -> BookLending {
+        unimplemented!()
+    }
+
+    fn lend_book(barcode: &str, member_id: u32) -> bool {
+        unimplemented!()
+    }
+
+    fn get_due_date(&self) -> chrono::NaiveDateTime {
+        chrono::Utc::now().naive_utc()
+    }
+}
+
+impl Fine {
+    fn collect_fine(member_id: u32, days: u32) -> bool {
+        unimplemented!()
+    }
+}
+
+/// **Search interface and Catalog:** The Catalog class will implement the Search interface to 
+/// facilitate searching of books.
 trait Search {
     fn search_by_title(&self, title: &str) -> Option<&Vec<String>>;
     fn search_by_author(&self, author: &str) -> Option<&Vec<String>>;
@@ -378,20 +393,20 @@ impl Catalog {
 }
 
 impl Search for Catalog {
-    fn search_by_title(&self, query: &str) -> Option<&Vec<String>> {
-        self.book_titles.get(query)
+    fn search_by_title(&self, title: &str) -> Option<&Vec<String>> {
+        self.book_titles.get(title)
     }
 
-    fn search_by_author(&self, query: &str) -> Option<&Vec<String>> {
-        self.book_authors.get(query)
+    fn search_by_author(&self, author: &str) -> Option<&Vec<String>> {
+        self.book_authors.get(author)
     }
 
-    fn search_by_subject(&self, query: &str) -> Option<&Vec<String>> {
-        self.book_subjects.get(query)
+    fn search_by_subject(&self, subject: &str) -> Option<&Vec<String>> {
+        self.book_subjects.get(subject)
     }
 
-    fn search_by_pub_date(&self, query: &str) -> Option<&Vec<String>> {
-        self.book_publication_dates.get(query)
+    fn search_by_pub_date(&self, publish_date: &str) -> Option<&Vec<String>> {
+        self.book_publication_dates.get(publish_date)
     }
 }
 

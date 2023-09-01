@@ -145,7 +145,6 @@ class Location:
 class Constants:
     def __init__(self):
         self.__MONEY_TRANSFER_LIMIT = 100000
-
 ```
 
 **StockExchange:** To encapsulate all the interactions with the stock exchange:
@@ -169,7 +168,6 @@ class StockExchange:
     def place_order(self, order):
         return_status = self.get_instance().submit_order(Order)
         return return_status
-
 ```
 
 **Order:** To encapsulate all buy or sell orders:
@@ -206,7 +204,6 @@ class Order(ABC):
 class LimitOrder(Order):
     def __init__(self):
         self.__price_limit = 0.0
-
 ```
 
 **Member:** Members will be buying and selling stocks:
@@ -287,5 +284,4 @@ class Member(Account):
 
         if status == OrderStatus.FILLED or status == OrderStatus.CANCELLEd:
             self.active_orders.remove(order_id)
-
 ```
