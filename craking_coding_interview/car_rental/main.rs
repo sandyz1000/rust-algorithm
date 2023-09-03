@@ -54,7 +54,7 @@ enum VehicleStatus {
 }
 
 
-#[derive(Debug, Display)]
+#[derive(Debug, Display, Clone)]
 enum ReservationStatus {
     Active,
     Inactive,
@@ -75,7 +75,7 @@ enum AccountStatus {
     Blocked,
 }
 
-#[derive(Debug, Display)]
+#[derive(Debug, Display, Clone)]
 enum PaymentStatus {
     Unpaid,
     Pending,
@@ -89,6 +89,13 @@ enum PaymentStatus {
     Refunded,
 }
 
+struct Address {
+    street_address: String,
+    city: String,
+    state: String,
+    zip_code: String,
+    country: String,
+}
 
 struct Person {
     name: String,
@@ -97,6 +104,8 @@ struct Person {
     phone: String,
 }
 
+/// **Account, Member, Receptionist, and Additional Driver:** 
+/// These classes represent different people that interact with our system:
 struct Account {
     id: String,
     password: String,
@@ -169,29 +178,21 @@ impl AdditionalDriver {
     }
 }
 
-struct Address {
-    street_address: String,
-    city: String,
-    state: String,
-    zip_code: String,
-    country: String,
-}
-
-
+/// **CarRentalSystem and CarRentalLocation:** These classes represent the top level classes:
 struct CarRentalLocation {
     name: String,
-    location: String,
+    location: Address,
 }
 
 impl CarRentalLocation {
-    fn new(name: String, location: String) -> Self {
+    fn new(name: String, location: Address) -> Self {
         CarRentalLocation {
             name,
             location,
         }
     }
 
-    fn get_location(&self) -> &str {
+    fn get_location(&self) -> &Address {
         &self.location
     }
 }
@@ -214,15 +215,14 @@ impl CarRentalSystem {
     }
 }
 
-
 trait Search {
-    fn search_by_type(&self, type_query: &str) -> Option<&Vec<String>>;
-    fn search_by_model(&self, model_query: &str) -> Option<&Vec<String>>;
+    fn search_by_type(&self, type_query: &str) -> Option<&VehicleE>;
+    fn search_by_model(&self, model_query: &str) -> Option<&VehicleE>;
 }
 
 struct VehicleInventory {
-    vehicle_types: HashMap<String, Vec<String>>,
-    vehicle_models: HashMap<String, Vec<String>>,
+    vehicle_types: HashMap<String, VehicleE>,
+    vehicle_models: HashMap<String, VehicleE>,
 }
 
 impl VehicleInventory {
@@ -235,15 +235,64 @@ impl VehicleInventory {
 }
 
 impl Search for VehicleInventory {
-    fn search_by_type(&self, type_query: &str) -> Option<&Vec<String>> {
+    fn search_by_type(&self, type_query: &str) -> Option<&VehicleE> {
         self.vehicle_types.get(type_query)
     }
 
-    fn search_by_model(&self, model_query: &str) -> Option<&Vec<String>> {
+    fn search_by_model(&self, model_query: &str) -> Option<&VehicleE> {
         self.vehicle_models.get(model_query)
     }
 }
 
+struct Barcode {
+    barcode: String,
+    issued_at: chrono::DateTime<chrono::Utc>,
+    active: bool,
+}
+
+impl Barcode {
+    fn new(barcode: String, issued_at: chrono::DateTime<chrono::Utc>, active: bool) -> Self {
+        Barcode {
+            barcode, issued_at, active,
+        }
+    }
+
+    fn is_active(&self) -> bool {
+        self.active
+    }
+}
+struct BarcodeReader {
+    id: String,
+    registered_at: chrono::DateTime<chrono::Utc>,
+    active: bool,
+}
+
+impl BarcodeReader {
+    fn new(id: String, registered_at: chrono::DateTime<chrono::Utc>, active: bool) -> Self {
+        BarcodeReader {
+            id,
+            registered_at,
+            active,
+        }
+    }
+
+    fn is_active(&self) -> bool {
+        self.active
+    }
+}
+
+/// **Vehicle, VehicleLog, and VehicleReservation:** 
+/// To encapsulate a vehicle, log, and reservation. The VehicleReservation class will be responsible 
+/// for processing the reservation and return of a vehicle:
+
+#[derive(Debug, Clone)]
+enum VehicleType {
+    Truck,
+    Van,
+    Car,
+}
+
+#[derive(Debug, Clone)]
 struct Vehicle {
     license_number: String,
     stock_number: String,
@@ -258,46 +307,29 @@ struct Vehicle {
     log: Vec<VehicleLog>,
 }
 
-impl Vehicle {
-    fn new(
-        license_number: String,
-        stock_number: String,
-        passenger_capacity: u32,
-        barcode: String,
-        has_sunroof: bool,
-        status: String,
-        model: String,
-        make: String,
-        manufacturing_year: u32,
-        mileage: u32,
-    ) -> Self {
-        Vehicle {
-            license_number,
-            stock_number,
-            passenger_capacity,
-            barcode,
-            has_sunroof,
-            status,
-            model,
-            make,
-            manufacturing_year,
-            mileage,
-            log: vec![],
-        }
-    }
+#[derive(Debug, Clone)]
+enum VehicleE {
+    Car(Car),
+    Van(Van),
+    Truck(Truck),
+}
 
-    fn reserve_vehicle(&self) {
+impl VehicleE {
+    fn reserve_vehicle(&self) -> bool {
         // Implement reserve_vehicle logic here
+        false
     }
 
-    fn return_vehicle(&self) {
+    fn return_vehicle(&self) -> bool {
         // Implement return_vehicle logic here
+        false
     }
 }
 
+#[derive(Debug, Clone)]
 struct Car {
     vehicle: Vehicle,
-    type_: String,
+    vehicle_type: VehicleType,
 }
 
 impl Car {
@@ -311,11 +343,10 @@ impl Car {
         model: String,
         make: String,
         manufacturing_year: u32,
-        mileage: u32,
-        type_: String,
+        mileage: u32
     ) -> Self {
         Car {
-            vehicle: Vehicle::new(
+            vehicle: Vehicle {
                 license_number,
                 stock_number,
                 passenger_capacity,
@@ -326,15 +357,17 @@ impl Car {
                 make,
                 manufacturing_year,
                 mileage,
-            ),
-            type_,
+                log: vec![],
+            },
+            vehicle_type: VehicleType::Car,
         }
     }
 }
 
+#[derive(Debug, Clone)]
 struct Van {
     vehicle: Vehicle,
-    type_: String,
+    vehicle_type: VehicleType,
 }
 
 impl Van {
@@ -348,11 +381,10 @@ impl Van {
         model: String,
         make: String,
         manufacturing_year: u32,
-        mileage: u32,
-        type_: String,
+        mileage: u32
     ) -> Self {
         Van {
-            vehicle: Vehicle::new(
+            vehicle: Vehicle {
                 license_number,
                 stock_number,
                 passenger_capacity,
@@ -363,15 +395,17 @@ impl Van {
                 make,
                 manufacturing_year,
                 mileage,
-            ),
-            type_,
+                log: vec![],
+            },
+            vehicle_type: VehicleType::Van,
         }
     }
 }
 
+#[derive(Debug, Clone)]
 struct Truck {
     vehicle: Vehicle,
-    type_: String,
+    vehicle_type: VehicleType,
 }
 
 impl Truck {
@@ -389,7 +423,7 @@ impl Truck {
         type_: String,
     ) -> Self {
         Truck {
-            vehicle: Vehicle::new(
+            vehicle: Vehicle {
                 license_number,
                 stock_number,
                 passenger_capacity,
@@ -400,15 +434,17 @@ impl Truck {
                 make,
                 manufacturing_year,
                 mileage,
-            ),
-            type_,
+                log: vec![],
+            },
+            vehicle_type: VehicleType::Truck,
         }
     }
 }
 
+#[derive(Debug, Clone)]
 struct VehicleLog {
     id: String,
-    type_: String,
+    vehicle_type: VehicleType,
     description: String,
     creation_date: String,
 }
@@ -418,21 +454,22 @@ impl VehicleLog {
         // Implement update logic here
     }
 
-    fn search_by_log_type(&self, type_: String) {
+    fn search_by_log_type(&self, vehicle_type: VehicleType) {
         // Implement search_by_log_type logic here
     }
 }
 
+#[derive(Debug, Clone)]
 struct VehicleReservation {
     reservation_number: String,
-    creation_date: String,
+    creation_date: chrono::NaiveDateTime,
     status: ReservationStatus,
     due_date: String,
     return_date: String,
     pickup_location_name: String,
     return_location_name: String,
     customer_id: u32,
-    vehicle: Option<Vehicle>,
+    vehicle: Option<VehicleE>,
     bill: Option<Bill>,
     additional_drivers: Vec<Driver>,
     notifications: Vec<Notification>,
@@ -445,7 +482,7 @@ impl VehicleReservation {
     fn new(reservation_number: String) -> Self {
         VehicleReservation {
             reservation_number,
-            creation_date: String::from(""),
+            creation_date: chrono::Utc::now().naive_utc(),
             status: ReservationStatus::Active,
             due_date: String::from(""),
             return_date: String::from(""),
@@ -462,8 +499,9 @@ impl VehicleReservation {
         }
     }
 
-    fn fetch_reservation_details(&self, reservation_number: String) {
+    fn fetch_reservation_details(&self, reservation_number: String) -> VehicleReservation {
         // Implement fetch_reservation_details logic here
+        unimplemented!()
     }
 
     fn get_additional_drivers(&self) -> &Vec<Driver> {
@@ -471,28 +509,133 @@ impl VehicleReservation {
     }
 }
 
+#[derive(Debug, Clone)]
+struct Payment {
+    id: u32,
+    amount: f32,
+    status: PaymentStatus,
+    creation_date: chrono::NaiveDateTime,
+}
+
+impl Payment {
+    fn create_transaction(&self) -> bool {
+        // Implement create_transaction logic here
+        false
+    }
+}
+
+struct CreditCardTransaction {
+    id: u32,
+    card_number: String,
+    expiration_date: String,
+    cvv: String,    
+    payment: Payment,
+}
+
+struct CashTransaction {
+    amount: f32,
+    payment: Payment,
+}
+
+struct CheckTransaction {
+    bank: String,
+    check_number: String,
+    payment: Payment,
+}
+
+#[derive(Debug, Clone)]
 struct Driver {
     // Driver fields here
 }
 
+#[derive(Debug, Clone)]
 struct Bill {
     // Bill fields here
 }
 
+#[derive(Debug, Clone)]
 struct Notification {
-    // Notification fields here
+    id: u32,
+    message: String,
+    creation_date: chrono::NaiveDateTime,
 }
 
+impl Notification {
+    fn send_notification(&self) -> bool {
+        false
+    }
+}
+struct SMSNotification {
+    notification: Notification,
+    phone: String,
+}
+
+struct EmailNotification {
+    notification: Notification,
+    email: String,
+}
+
+#[derive(Debug, Clone)]
 struct Insurance {
-    // Insurance fields here
+    id: u32,
+    name: String,
 }
 
+impl Insurance {
+    fn add_insurance(&self) -> bool {
+        // Implement add_insurance logic here
+        false
+    }
+}
+
+struct RentalInsurance {
+    insurance: Insurance,
+}
+
+struct PersonalInsurance {
+    insurance: Insurance,
+}
+
+struct LiabilityInsurance {
+    insurance: Insurance,
+}
+
+#[derive(Debug, Clone)]
 struct Equipment {
-    // Equipment fields here
+    id: u32,
+    name: String,
 }
 
+impl Equipment {
+    fn new(id: u32, name: String) -> Self {
+        Equipment {
+            id, name
+        }
+    }
+
+    fn add_equipment(&self) -> bool {
+        // Implement add_equipment logic here
+        false
+    }
+}
+
+#[derive(Debug, Clone)]
 struct Service {
-    // Service fields here
+    id: u32,
+    name: String,
+}
+
+impl Service {
+    fn new(id: u32) -> Self {
+        Service {
+            id, name: String::from(""),
+        }
+    }
+
+    fn add_service(&self) -> bool {
+        // Implement add_service logic here
+        false
+    }
 }
 
 

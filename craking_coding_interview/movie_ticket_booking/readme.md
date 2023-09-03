@@ -142,7 +142,6 @@ class Address:
         self.__state = state
         self.__zip_code = zip_code
         self.__country = country
-
 ```
 
 **Account, Customer, Admin, FrontDeskOfficer, and Guest:** These classes represent the different people that interact with our system:
@@ -204,7 +203,6 @@ class FrontDeskOfficer(Person):
 class Guest:
     def register_account(self):
         None
-
 ```
 
 **Show and Movie:** A movie will have many shows:
@@ -238,7 +236,6 @@ class Movie:
 
     def get_shows(self):
         None
-
 ```
 
 **Booking, ShowSeat, and Payment:** Customers will reserve seats with a booking and make a payment:
@@ -281,7 +278,6 @@ class Payment:
         self.__created_on = datetime.date.today()
         self.__transaction_id = transaction_id
         self.__status = payment_status
-
 ```
 
 **City, Cinema, CinemaHall and CinemaHallSeat:** Each city can have many cinemas and each cinema can have many cinema halls:
@@ -316,7 +312,6 @@ class CinemaHallSeat:
     def __init__(self, id, seat_type):
         self.__hall_seat_id = id
         self.__seat_type = seat_type
-
 ```
 
 **Search interface and Catalog:** Catalog will implement Search to facilitate searching of products.
@@ -360,7 +355,6 @@ class Catalog(Search):
 
         def search_by_city(self, city_name):
             return self.__movie_cities.get(city_name)
-
 ```
 
 ### Concurrency
@@ -371,16 +365,16 @@ We can use transactions in SQL databases to avoid any clashes. For example, if w
 
 ```sql
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
- 
+
 BEGIN TRANSACTION;
- 
+
     -- Suppose we intend to reserve three seats (IDs: 54, 55, 56) for ShowID=99 
     Select * From ShowSeat where ShowID=99 && ShowSeatID in (54, 55, 56) && isReserved=0 
- 
+
     -- if the number of rows returned by the above statement is NOT three, we can return failure to the user.
     update ShowSeat table...
     update Booking table ...
- 
+
 COMMIT TRANSACTION;
 ```
 
@@ -389,4 +383,3 @@ COMMIT TRANSACTION;
 Once the above database transaction is successful, we can safely assume that the reservation has been marked successfully and no two customers will be able to reserve the same seat.
 
 Read [JDBC Transaction Isolation Levels](https://docs.microsoft.com/en-us/sql/connect/jdbc/understanding-isolation-levels?view=sql-server-2017) for details.
-

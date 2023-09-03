@@ -51,7 +51,6 @@ impl Default for Suit {
     }
 }
 
-
 trait Card {
     fn get_suit(&self) -> &Suit;
 
@@ -180,8 +179,9 @@ trait BasePlayer {
         0
     }
     
-    fn reset_password(&self) {
+    fn reset_password(&self) -> bool {
         // Implementation for resetting password
+        true
     }
 
     fn place_bet(&mut self, bet: f32) {
@@ -283,9 +283,7 @@ impl PartialEq for Hand {
     }
 }
 
-impl Eq for Hand {
-
-}
+impl Eq for Hand {}
 
 impl Hand {
     fn new(blackjack_card1: BlackjackCard, blackjack_card2: BlackjackCard) -> Self {

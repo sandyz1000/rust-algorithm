@@ -39,6 +39,20 @@ enum ParkingTicketStatus {
     Lost,
 }
 
+#[derive(Debug, Display, Clone)]
+enum PaymentStatus {
+    Unpaid,
+    Pending,
+    Completed,
+    Filled,
+    Declined,
+    Cancelled,
+    Abandoned,
+    Settling,
+    Settled,
+    Refunded,
+}
+
 #[derive(Debug)]
 struct Address {
     street_address: String,
@@ -100,12 +114,12 @@ where
     }
 
     /// Implementation of adding a parking floor
-    fn add_parking_floor(&self, floor: ParkingFloor<S, T>) {
+    fn add_parking_floor(&self, floor: ParkingFloor<S, T>) -> bool {
         unimplemented!()
     }
 
     /// Implementation of adding a parking spot
-    fn add_parking_spot(&self, floor_name: String, spot: S) {
+    fn add_parking_spot(&self, floor_name: String, spot: S) -> bool {
         unimplemented!()
     }
 
@@ -114,22 +128,22 @@ where
         &self,
         floor_name: String,
         display_board: ParkingDisplayBoard<S, T>,
-    ) {
+    ) -> bool {
         unimplemented!()
     }
 
     /// Implementation of adding a customer info panel
-    fn add_customer_info_panel(&self, floor_name: String, info_panel: CustomerInfoPanel) {
+    fn add_customer_info_panel(&self, floor_name: String, info_panel: CustomerInfoPanel) -> bool {
         unimplemented!()
     }
 
     /// Implementation of adding an entrance panel
-    fn add_entrance_panel(&self, entrance_panel: EntrancePanel) {
+    fn add_entrance_panel(&self, entrance_panel: EntrancePanel) -> bool {
         unimplemented!()
     }
 
     /// Implementation of adding an exit panel
-    fn add_exit_panel(&self, exit_panel: ExitPanel) {
+    fn add_exit_panel(&self, exit_panel: ExitPanel) -> bool {
         unimplemented!()
     }
 }
@@ -145,7 +159,7 @@ impl ParkingAttendant {
         }
     }
 
-    fn process_ticket(&self, ticket_number: u32) {
+    fn process_ticket(&self, ticket_number: u32) -> bool {
         // Implementation of processing a ticket
         unimplemented!()
     }
@@ -243,16 +257,86 @@ where
     }
 }
 
-struct CustomerInfoPanel;
+#[derive(Debug, Clone)]
+struct ParkingAttendantPanel {
+    id: u32,
+}
+
+impl ParkingAttendantPanel {
+    fn new(id: u32) -> Self {
+        ParkingAttendantPanel { id }
+    }
+
+    fn process_payment(&self) -> bool {
+        false
+    }
+
+    fn scan_ticket(&self) -> bool {
+        false
+    }
+}
 
 #[derive(Debug, Clone)]
-struct EntrancePanel;
+struct CustomerInfoPanel {
+    id: u32,
+}
+
+impl CustomerInfoPanel {
+    fn new(id: u32) -> Self {
+        CustomerInfoPanel { id }
+    }
+
+    fn process_payment(&self) -> bool {
+        false
+    }
+
+    fn scan_ticket(&self) -> bool {
+        false
+    }
+}
 
 #[derive(Debug, Clone)]
-struct ExitPanel;
+struct EntrancePanel {
+    id: u32,
+}
+
+impl EntrancePanel {
+    fn print_ticket(&self) -> bool {
+        false
+    }
+}
 
 #[derive(Debug, Clone)]
-struct InfoPortal;
+struct ExitPanel {
+    id: u32,
+}
+
+impl ExitPanel {
+    fn scan_ticket(&self) -> bool {
+        false
+    }
+
+    fn process_payment(&self) -> bool {
+        false
+    }
+}
+
+
+#[derive(Debug, Clone)]
+struct ElectricPanel {
+    pay_for_time: u32,
+    charging_start_time: chrono::DateTime<chrono::Utc>,
+}
+
+impl ElectricPanel {
+    fn new(&self, pay_for_time: u32, charging_start_time: chrono::DateTime<chrono::Utc>) -> Self {
+        ElectricPanel { pay_for_time, charging_start_time }    
+    }
+
+    fn cancel_charging(&self) -> bool {
+        false
+    }
+}
 
 #[derive(Debug, Clone)]
 struct ParkingFloor<S, T> {
@@ -262,7 +346,7 @@ struct ParkingFloor<S, T> {
     large_spots: HashMap<u32, S>,
     motorbike_spots: HashMap<u32, S>,
     electric_spots: HashMap<u32, S>,
-    info_portals: HashMap<u32, InfoPortal>,
+    info_portals: HashMap<u32, CustomerInfoPanel>,
     free_handicapped_spot_count: u32,
     free_compact_spot_count: u32,
     free_large_spot_count: u32,
@@ -746,12 +830,17 @@ impl<T: Vehicle> ParkingSpot<T> for ElectricSpot<T> {
     }
 }
 
-#[derive(Debug, Clone)]
-struct ParkingRate;
+
+
+#[derive(Debug, Clone, Default)]
+struct ParkingRate {
+    hour_number: u32,
+    rate: u32,
+}
 
 impl ParkingRate {
-    fn new() -> Self {
-        ParkingRate {}
+    fn new(hour_number: u32, rate: u32) -> Self {
+        ParkingRate {hour_number, rate}
     }
 }
 
@@ -783,7 +872,7 @@ where
         ParkingLot {
             name,
             address,
-            parking_rate: ParkingRate::new(),
+            parking_rate: ParkingRate::default(),
             compact_spot_count: 0,
             large_spot_count: 0,
             motorbike_spot_count: 0,
@@ -855,6 +944,34 @@ where
     }
 
 }
+
+struct Payment {
+    id: u32,
+    amount: f32,
+    status: PaymentStatus,
+    creation_date: chrono::NaiveDateTime,
+}
+
+impl Payment {
+    fn create_transaction(&self) -> bool {
+        // Implement create_transaction logic here
+        false
+    }
+}
+
+struct CreditCardTransaction {
+    id: u32,
+    card_number: String,
+    expiration_date: String,
+    cvv: String,    
+    payment: Payment,
+}
+
+struct CashTransaction {
+    amount: f32,
+    payment: Payment,
+}
+
 
 fn main() {
     let person = Person {

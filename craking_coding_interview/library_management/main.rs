@@ -3,6 +3,7 @@
 use std::{fmt, collections::HashMap};
 use strum_macros::Display;
 use fmt::Display as FmtDisplay;
+use chrono::prelude::*;
 
 #[derive(Debug)]
 enum BookFormat {
@@ -41,7 +42,7 @@ enum AccountStatus {
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Address {
     street_address: String,
     city: String,
@@ -111,10 +112,9 @@ struct BookItem {
     price: f64,
     book_format: BookFormat,
     status: BookStatus,
-    date_of_purchase: String,
-    publication_date: String,
+    date_of_purchase: chrono::DateTime<chrono::Utc>,
+    publication_date: chrono::DateTime<chrono::Utc>,
     placed_at: String,
-
 }
 
 impl BookItem {
@@ -202,23 +202,81 @@ struct Fine {
     member_id: u32,
 }
 
+impl Fine {
+    fn new(creation_date: chrono::NaiveDateTime, book_item_barcode: String, member_id: u32) -> Self {
+        Fine {
+            creation_date, book_item_barcode, member_id
+        }
+    }
+
+    fn get_amount(&self) -> f64 {
+        0.0  
+    }
+}
+
 /// **Account, Member, and Librarian:** These classes represent various people 
 /// that interact with our system: 
 trait Account {
-    fn reset_password(&self);
+    fn reset_password(&self) -> bool;
 }
 
 impl Account for Librarian {
-    fn reset_password(&self) {
-        todo!()
+    fn reset_password(&self) -> bool {
+        false
     }
 }
 
 impl Account for Member {
-    fn reset_password(&self) {
-        todo!()
+    fn reset_password(&self) -> bool {
+        false
     }    
 }
+
+#[derive(Debug)]
+struct Author {
+    name: String,
+    description: String,
+}
+
+#[derive(Debug, Clone)]
+struct Library {
+    name: String,
+    address: Address,
+}
+
+impl Library {
+    fn new(name: String, address: Address) -> Self {
+        Self {
+            name,
+            address,
+        }
+    }
+
+    fn get_address(&self) -> &Address {
+        unimplemented!()
+    }
+}
+
+#[derive(Debug, Clone)]
+struct BarcodeReader {
+    id: String,
+    registered_at: chrono::DateTime<chrono::Utc>,
+    active: bool
+}
+
+impl BarcodeReader {
+    fn new(id: String, registered_at: chrono::DateTime<chrono::Utc>, active: bool) -> Self {
+        Self {
+            id, registered_at, active
+        }
+    }
+
+    fn is_active(&self) -> bool {
+        self.active
+    }
+}
+
+
 
 #[derive(Debug)]
 struct Librarian {
@@ -229,11 +287,93 @@ struct Librarian {
 }
 
 impl Librarian {
-    fn add_book_item(&self, book_item: &BookItem) {}
+    // TODO: Implement all the methods for Librarian
+    fn add_book_item(&self, book_item: &BookItem) -> bool {
+        true
+    }
 
-    fn block_member(&self, member: &mut Member) {}
+    fn block_member(&self, member: &mut Member) -> bool {
+        true
+    }
 
-    fn un_block_member(&self, member: &mut Member) {}
+    fn un_block_member(&self, member: &mut Member) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Clone)]
+struct LibraryCard {
+    card_number: String,
+    barcode: String,
+    active: bool,
+    issued_date: chrono::DateTime<chrono::Utc>,
+}
+
+impl LibraryCard {
+    fn new(card_number: String, barcode: String, active: bool, issued_date: chrono::DateTime<chrono::Utc>) -> Self {
+        LibraryCard {
+            card_number,
+            barcode,
+            active,
+            issued_date,
+        }
+    }
+
+    fn is_active(&self) -> bool {
+        self.active
+    }
+}
+
+#[derive(Debug, Clone)]
+struct FineTransaction {
+    creation_date: chrono::NaiveDateTime,
+    fine_amount: f64
+}
+
+impl FineTransaction {
+    fn new(
+        creation_date: chrono::NaiveDateTime, fine_amount: f64
+    ) -> Self {
+        Self { creation_date, fine_amount }
+    }
+
+    fn initiate_transaction(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Clone)]
+struct CreditCardTransaction {
+    fine_transaction: FineTransaction,
+    name_on_card: String,
+    card_number: String,
+    expiration_date: String,
+    cvv: String
+}
+
+#[derive(Debug, Clone)]
+struct CashTransaction {
+    fine_transaction: FineTransaction,
+    cash_amount: f64
+}
+
+#[derive(Debug, Clone)]
+struct Notification {
+    notification_id: i32,
+    created_on: chrono::DateTime<Utc>,
+    content: String
+}
+
+#[derive(Debug, Clone)]
+struct PostalNotification {
+    address: Address,
+    notification: Notification
+}
+
+#[derive(Debug, Clone)]
+struct EmailNotification {
+    notification: Notification,
+    email: String
 }
 
 #[derive(Debug)]
@@ -369,26 +509,37 @@ impl Fine {
 /// facilitate searching of books.
 trait Search {
     fn search_by_title(&self, title: &str) -> Option<&Vec<String>>;
+    
     fn search_by_author(&self, author: &str) -> Option<&Vec<String>>;
+    
     fn search_by_subject(&self, subject: &str) -> Option<&Vec<String>>;
-    fn search_by_pub_date(&self, publish_date: &str) -> Option<&Vec<String>>;
+    
+    fn search_by_pub_date(&self, publish_date: &NaiveDateTime) -> Option<&Vec<String>>;
 }
 
 struct Catalog {
+    created_at: chrono::DateTime<chrono::Utc>,
+    total_books: u32,
     book_titles: HashMap<String, Vec<String>>,
     book_authors: HashMap<String, Vec<String>>,
     book_subjects: HashMap<String, Vec<String>>,
-    book_publication_dates: HashMap<String, Vec<String>>,
+    book_publication_dates: HashMap<chrono::NaiveDateTime, Vec<String>>,
 }
 
 impl Catalog {
-    fn new() -> Self {
+    fn new(total_books: u32) -> Self {
         Catalog {
+            total_books,
+            created_at: chrono::Utc::now(),
             book_titles: HashMap::new(),
             book_authors: HashMap::new(),
             book_subjects: HashMap::new(),
             book_publication_dates: HashMap::new(),
         }
+    }
+
+    fn update_catalog(&mut self) -> bool {
+        unimplemented!()
     }
 }
 
@@ -405,8 +556,8 @@ impl Search for Catalog {
         self.book_subjects.get(subject)
     }
 
-    fn search_by_pub_date(&self, publish_date: &str) -> Option<&Vec<String>> {
-        self.book_publication_dates.get(publish_date)
+    fn search_by_pub_date(&self, publish_date: &NaiveDateTime) -> Option<&Vec<String>> {
+        unimplemented!()
     }
 }
 

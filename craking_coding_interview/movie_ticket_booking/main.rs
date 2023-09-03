@@ -1,6 +1,30 @@
+//! How to handle concurrency; such that no two users are able to book the same seat?
+//!
+//! We can use transactions in SQL databases to avoid any clashes. For example, if we are using SQL server we can utilize 
+//! Transaction Isolation Levels to lock the rows before we update them. Note: within a transaction, if we read rows we 
+//! get a write-lock on them so that they can’t be updated by anyone else. Here is the sample code:
+//!
+//! SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+//!
+//! BEGIN TRANSACTION;
+//!
+//!     -- Suppose we intend to reserve three seats (IDs: 54, 55, 56) for ShowID=99 
+//!     Select * From ShowSeat where ShowID=99 && ShowSeatID in (54, 55, 56) && isReserved=0 
+//!
+//!     -- if the number of rows returned by the above statement is NOT three, we can return failure to the user.
+//!     update ShowSeat table...
+//!     update Booking table ...
+//!
+//! COMMIT TRANSACTION;
+//! ‘Serializable’ is the highest isolation level and guarantees safety from Dirty, Nonrepeatable, and Phantoms reads.
+//!
+//! Once the above database transaction is successful, we can safely assume that the reservation has been marked successfully 
+//! and no two customers will be able to reserve the same seat.
 #![allow(unused)]
 
 use strum_macros::Display;
+use std::collections::HashMap;
+use chrono::prelude::*;
 
 #[derive(Debug, Display)]
 enum BookingStatus {
@@ -13,7 +37,7 @@ enum BookingStatus {
 }
 
 
-#[derive(Debug, Display)]
+#[derive(Debug, Display, Clone)]
 enum SeatType {
     Regular,
     Premium,
@@ -22,7 +46,6 @@ enum SeatType {
     EmergencyExit,
     Other,
 }
-
 
 enum AccountStatus {
     Active,
@@ -33,7 +56,7 @@ enum AccountStatus {
     Unknown,
 }
 
-#[derive(Debug, Display)]
+#[derive(Debug, Display, Clone)]
 enum PaymentStatus {
     UNpaid,
     Pending,
@@ -48,6 +71,52 @@ enum PaymentStatus {
 }
 
 #[derive(Debug, Clone)]
+struct City {
+    name: String,
+    state: String,
+    zip_code: String
+}
+
+#[derive(Debug, Clone)]
+struct Cinema {
+    name: String,
+    total_cinema_hall: i32,
+    location: Address,
+    halls: Vec<CinemaHall>,
+}
+
+#[derive(Debug, Clone)]
+struct CinemaHall {
+    name: String,
+    total_seat: i32,
+}
+
+#[derive(Debug, Clone)]
+struct CinemaHallSeat {
+    seat_id: i32,
+    seat_row: i32,
+    seat_column: i32,
+    seat_type: SeatType,
+}
+
+#[derive(Debug, Clone)]
+struct ShowSeat {
+    show_seat_id: String,
+    is_reserved: bool,
+    price: f64,
+}
+
+impl ShowSeat {
+    fn new(id: String, is_reserved: bool, price: f64) -> Self {
+        Self {
+            show_seat_id: id,
+            is_reserved,
+            price,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 struct Address {
     street_address: String,
     city: String,
@@ -56,14 +125,12 @@ struct Address {
     country: String,
 }
 
-use chrono::prelude::*;
-
 #[derive(Debug, Clone)]
 struct Show {
     show_id: u32,
     created_on: chrono::DateTime<Utc>,
-    start_time: String,
-    end_time: String,
+    start_time: chrono::DateTime<Utc>,
+    end_time: chrono::DateTime<Utc>,
     played_at: String,
     movie: Movie,
 }
@@ -110,43 +177,43 @@ impl Movie {
     }
 }
 
-use std::collections::HashMap;
 
 trait Search {
-    fn search_by_title(&self, title: &str);
-    fn search_by_language(&self, language: &str);
-    fn search_by_genre(&self, genre: &str);
-    fn search_by_release_date(&self, rel_date: &str);
-    fn search_by_city(&self, city_name: &str);
+    fn search_by_title(&self, title: &str)  -> Vec<Movie>;
+    fn search_by_language(&self, language: &str)  -> Vec<Movie>;
+    fn search_by_genre(&self, genre: &str)  -> Vec<Movie>;
+    fn search_by_release_date(&self, rel_date: &str) -> Vec<Movie>;
+    fn search_by_city(&self, city_name: &str) -> Vec<Movie> ;
 }
 
+/// TODO: This should be mapping of movie titles to movie details 
 struct Catalog {
-    movie_titles: HashMap<String, String>,
-    movie_languages: HashMap<String, String>,
-    movie_genres: HashMap<String, String>,
-    movie_release_dates: HashMap<String, String>,
+    movie_titles: HashMap<String, Movie>,
+    movie_languages: HashMap<String, Movie>,
+    movie_genres: HashMap<String, Movie>,
+    movie_release_dates: HashMap<String, Movie>,
     movie_cities: HashMap<String, String>,
 }
 
 impl Search for Catalog {
-    fn search_by_title(&self, title: &str) {
-        self.movie_titles.get(title);
+    fn search_by_title(&self, title: &str) -> Vec<Movie> {
+        unimplemented!()
     }
 
-    fn search_by_language(&self, language: &str) {
-        self.movie_languages.get(language);
+    fn search_by_language(&self, language: &str) -> Vec<Movie> {
+        unimplemented!()
     }
 
-    fn search_by_genre(&self, genre: &str) {
-        self.movie_genres.get(genre);
+    fn search_by_genre(&self, genre: &str) -> Vec<Movie> {
+        unimplemented!()
     }
 
-    fn search_by_release_date(&self, rel_date: &str) {
-        self.movie_release_dates.get(rel_date);
+    fn search_by_release_date(&self, rel_date: &str) -> Vec<Movie> {
+        unimplemented!()
     }
 
-    fn search_by_city(&self, city_name: &str) {
-        self.movie_cities.get(city_name);
+    fn search_by_city(&self, city_name: &str) -> Vec<Movie> {
+        unimplemented!()
     }
 }
 
@@ -209,12 +276,12 @@ impl Person for Customer {
 }
 
 impl Customer {
-    fn make_booking(&self, booking: Booking) {
-        // Implement make_booking functionality
+    fn make_booking(&self, booking: Booking) -> bool {
+        unimplemented!()
     }
 
-    fn get_bookings(&self) {
-        // Implement get_bookings functionality
+    fn get_bookings(&self) -> Vec<Booking> {
+        unimplemented!()
     }
 }
 
@@ -249,16 +316,17 @@ impl Person for Admin {
 }
 
 impl Admin {
-    fn add_movie(&self, movie: Movie) {
-        // Implement add_movie functionality
+    fn add_movie(&self, movie: Movie) -> bool {
+        unimplemented!()
     }
 
-    fn add_show(&self, show: Show) {
+    fn add_show(&self, show: Show) -> Show {
         // Implement add_show functionality
+        unimplemented!()
     }
 
-    fn block_user(&self, customer: &Customer) {
-        // Implement block_user functionality
+    fn block_user(&self, customer: &Customer) -> bool {
+        false
     }
 }
 
@@ -293,26 +361,26 @@ impl Person for FrontDeskOfficer {
 }
 
 impl FrontDeskOfficer {
-    fn create_booking(&self, booking: Booking) {
+    fn create_booking(&self, booking: Booking) -> bool {
         // Implement create_booking functionality
+        true
     }
 }
 
 struct Guest {}
 
 impl Guest {
-    fn register_account(&self) {
+    fn register_account(&self) -> bool {
         // Implement register_account functionality
+        true
     }
 }
-
-use chrono::prelude::*;
 
 struct Booking {
     booking_number: String,
     number_of_seats: i32,
     created_on: chrono::DateTime<Utc>,
-    status: String,
+    status: BookingStatus,
     show: Show,
     seats: Vec<ShowSeat>,
     payment: Payment,
@@ -322,7 +390,7 @@ impl Booking {
     fn new(
         booking_number: String,
         number_of_seats: i32,
-        status: String,
+        status: BookingStatus,
         show: Show,
         show_seats: Vec<ShowSeat>,
         payment: Payment,
@@ -342,8 +410,9 @@ impl Booking {
         // Implement make_payment functionality
     }
 
-    fn cancel(&self) {
+    fn cancel(&self) -> bool {
         // Implement cancel functionality
+        true
     }
 
     fn assign_seats(&self, seats: Vec<ShowSeat>) {
@@ -351,40 +420,110 @@ impl Booking {
     }
 }
 
-struct ShowSeat {
-    show_seat_id: String,
-    is_reserved: bool,
-    price: f64,
+#[derive(Debug, Clone)]
+struct Coupon {
+    id: i32,
+    code: String,
+    discount: f64,
+    expiry_date: chrono::DateTime<Utc>,
 }
 
-impl ShowSeat {
-    fn new(id: String, is_reserved: bool, price: f64) -> Self {
-        Self {
-            show_seat_id: id,
-            is_reserved,
-            price,
-        }
-    }
-}
-
+#[derive(Debug, Clone)]
 struct Payment {
     amount: f64,
     created_on: chrono::DateTime<Utc>,
-    transaction_id: String,
-    status: String,
+    transaction_id: uuid::Uuid,
+    payment_status: PaymentStatus,
 }
 
 impl Payment {
-    fn new(amount: f64, transaction_id: String, payment_status: String) -> Self {
+    fn new(amount: f64, transaction_id: uuid::Uuid, payment_status: PaymentStatus) -> Self {
         Self {
             amount,
             created_on: Utc::now(),
             transaction_id,
-            status: payment_status,
+            payment_status,
         }
     }
 }
 
+#[derive(Debug, Clone)]
+struct CreditCardTransaction {
+    payment: Payment,
+    name_on_card: String,
+    card_number: String,
+    expiration_date: String,
+    cvv: String,
+}
+
+impl CreditCardTransaction {
+    fn new(
+        payment: Payment, name_on_card: String, card_number: String, expiration_date: String, cvv: String,
+    ) -> Self {
+        Self {
+            payment,
+            name_on_card,
+            card_number,
+            expiration_date,
+            cvv,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct CashTransaction {
+    payment: Payment,
+    cash_amount: f64,
+}
+
+impl CashTransaction {
+    fn new(payment: Payment, cash_amount: f64) -> Self {
+        Self {
+            payment,
+            cash_amount,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Notification {
+    notification_id: i32,
+    created_on: chrono::DateTime<Utc>,
+    content: String,
+}
+
+impl Notification {
+    fn send_notification(&self) -> bool {
+        // Implement send_notification functionality
+        true
+    }
+}
+
+#[derive(Debug, Clone)]
+struct EmailNotification {
+    notification: Notification,
+    email: String,
+}
+
+impl EmailNotification {
+    fn send_email(&self) -> bool {
+        // Implement send_email functionality
+        true
+    }
+}
+
+#[derive(Debug, Clone)]
+struct SMSNotification {
+    notification: Notification,
+    phone: String,
+}
+
+impl SMSNotification {
+    fn send_sms(&self) -> bool {
+        // Implement send_sms functionality
+        true
+    }
+}
 
 fn main() {
     let release_date = Utc.with_ymd_and_hms(2014, 11, 7, 0, 0, 0).unwrap();
