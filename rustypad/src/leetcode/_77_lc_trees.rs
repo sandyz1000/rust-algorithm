@@ -107,7 +107,7 @@ impl Solution {
             let right = _path_sum_recurse(
                 &noderef.right, target_sum, sum
             );
-
+            // If either is true, return true
             left || right
         }
 

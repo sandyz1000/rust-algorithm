@@ -1,5 +1,7 @@
 #![allow(unused)]
 
+use std::collections::HashSet;
+
 struct Solution;
 
 impl Solution {
@@ -155,7 +157,24 @@ impl Solution {
     /// - A simple improvement uses O(m + n) space, but still not the best solution.
     /// - Could you devise a constant space solution?
     pub fn set_zeroes(matrix: &mut Vec<Vec<i32>>) {
-        unimplemented!()
+        let mut row_with_zero: HashSet<usize> = HashSet::new();
+        let mut col_with_zero: HashSet<usize> = HashSet::new();
+        for row in 0..matrix.len() {
+            for col in 0..matrix[0].len() {
+                if matrix[row][col] == 0 {
+                    row_with_zero.insert(row);
+                    col_with_zero.insert(col);
+                }
+            }
+        }
+
+        for row in 0..matrix.len() {
+            for col in 0..matrix[0].len() {
+                if row_with_zero.contains(&row) || col_with_zero.contains(&col) {
+                    matrix[row][col] = 0;
+                }
+            }
+        }
     }
 
     /// ## 54. Spiral Matrix

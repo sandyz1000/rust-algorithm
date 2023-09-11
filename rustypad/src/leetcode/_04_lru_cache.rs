@@ -187,7 +187,7 @@ impl LRUCache {
 
     #[allow(dead_code)]
     fn put(&mut self, key: i32, value: i32) {
-        // Look for the  key  if exist and replace it with the new value#
+        // Look for the  key  if exist and replace it with the new value
         // Otherwise, add the key-value pair
         let node: NodeRef = if self.map.contains_key(&key) {
             let node: &NodeRef = self.map.get(&key).unwrap();

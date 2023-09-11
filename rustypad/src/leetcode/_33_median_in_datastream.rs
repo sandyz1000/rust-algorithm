@@ -23,14 +23,18 @@
 /// [[], [1], [2], [], [3], []]
 /// Output
 /// [null, null, null, 1.5, null, 2.0]
-///
+/// ```
+/// 
 /// Explanation
+/// ------------
+/// ```doc
 /// MedianFinder medianFinder = new MedianFinder();
 /// medianFinder.addNum(1);    // arr = [1]
 /// medianFinder.addNum(2);    // arr = [1, 2]
 /// medianFinder.findMedian(); // return 1.5 (i.e., (1 + 2) / 2)
 /// medianFinder.addNum(3);    // arr[1, 2, 3]
 /// medianFinder.findMedian(); // return 2.0
+/// ```
 /// ``` 
 ///
 /// Constraints:
@@ -44,8 +48,11 @@
 /// -----------
 /// * If all integer numbers from the stream are in the range [0, 100], how would you optimize your solution?
 /// * If 99% of all integer numbers from the stream are in the range [0, 100], how would you optimize your solution?
-struct MedianFinder {
+use std::{collections::BinaryHeap, cmp::Reverse};
 
+struct MedianFinder {
+    min_heap: BinaryHeap<Reverse<i32>>,
+    max_heap: BinaryHeap<i32>,
 }
 
 
@@ -62,15 +69,37 @@ impl MedianFinder {
     /// let ret_2: f64 = obj.find_median();
     /// ```
     fn new() -> Self {
-        unimplemented!()
+        Self {
+            min_heap: BinaryHeap::new(),
+            max_heap: BinaryHeap::new()
+        }
     }
     
-    fn add_num(&self, num: i32) {
-        unimplemented!()
+    fn add_num(&mut self, num: i32) {
+        // Maintain the element in two heaps with the same size
+        // Where the size of the left heap is equal to the size of the right heap in case of even
+
+        // First add to min heap
+        // Then add to max heap
+        // If the min heap size is greater than the max heap size, then we need to pop the min heap
+
+        self.max_heap.push(num);
+        if let Some(item) = self.max_heap.pop() {
+            self.min_heap.push(Reverse(item));
+        }
+
+        // If the second half len is greater than the first half len
+        if self.min_heap.len() > self.max_heap.len() {
+            self.max_heap.push(self.min_heap.pop().unwrap().0);
+        }
     }
     
     fn find_median(&self) -> f64 {
-        unimplemented!()
+        if (self.max_heap.len() + self.min_heap.len()) % 2 == 1 {
+            *self.max_heap.peek().unwrap() as f64 
+        } else {   
+            (*self.max_heap.peek().unwrap() as f64 + self.min_heap.peek().unwrap().0 as f64) / 2.0   
+        }
     }
 }
 

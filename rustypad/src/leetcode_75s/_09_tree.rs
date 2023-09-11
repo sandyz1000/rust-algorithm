@@ -18,6 +18,17 @@ struct TreeNode {
 impl TreeNode {
     #[inline]
     pub fn new(val: i32, left: Option<NodeRef>, right: Option<NodeRef>) -> Option<NodeRef> {
+        // let shader = r#"
+        //     #version 330
+
+        //     in vec4 v_color;
+        //     out vec4 color;
+
+        //     void main() {
+        //         color = v_color;
+        //     };
+        // "#;
+
         Some(Rc::new(RefCell::new(
             TreeNode {
                 val,

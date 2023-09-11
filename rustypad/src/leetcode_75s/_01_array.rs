@@ -209,6 +209,11 @@ impl Solution {
         false
     }
 
+    fn contains_duplicate_ii(nums: Vec<i32>) -> bool {
+        let duplicates: HashSet<i32> = nums.iter().map(|x| *x).collect();
+        duplicates.len() != nums.len()
+    }
+
     /// ## 238. Product of Array Except Self
     /// https://leetcode.com/problems/product-of-array-except-self/
     /// 
@@ -266,23 +271,26 @@ impl Solution {
     ///
     /// Example 1:
     /// -----------
-    /// - Input: nums = [2,3,-2,4]
-    /// - Output: 6
-    ///
-    /// Explanation: [2,3] has the largest product 6.
+    /// ```
+    /// let nums = vec![2,3,-2,4];
+    /// assert_eq!(Solution::max_product(nums), 6);
+    /// ```
+    /// Explanation: \[2,3] has the largest product 6.
     ///
     /// Example 2:
     /// -----------
-    /// - Input: nums = [-2,0,-1]
-    /// - Output: 0
+    /// ```
+    /// let nums = vec![-2,0,-1];
+    /// assert_eq!(Solution::max_product(nums), 0);
+    /// ```
     ///
-    /// Explanation: The result cannot be 2, because [-2,-1] is not a subarray.
+    /// Explanation: The result cannot be 2, because \[-2,-1] is not a subarray.
     ///
     /// Constraints:
     /// -----------
-    /// 1 <= nums.length <= 2 * 104
-    /// -10 <= nums[i] <= 10
-    /// The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer.
+    /// * 1 <= nums.length <= 2 * 104
+    /// * -10 <= nums\[i] <= 10
+    /// * The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer.
     pub fn max_product(nums: Vec<i32>) -> i32 {
         unimplemented!( )    
     }
@@ -293,27 +301,33 @@ impl Solution {
     ///
     /// Example 1:
     /// -----------
-    /// - Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
-    /// - Output: 6
-    /// - Explanation: The subarray [4,-1,2,1] has the largest sum 6.
+    /// ```
+    /// let nums = vec![-2,1,-3,4,-1,2,1,-5,4];
+    /// assert_eq!(Solution::max_sub_array(nums), 6);
+    /// ```
+    /// - Explanation: The subarray \[4,-1,2,1] has the largest sum 6.
     ///
     /// Example 2:
     /// -----------
-    /// - Input: nums = [1]
-    /// - Output: 1
-    /// - Explanation: The subarray [1] has the largest sum 1.
+    /// ```
+    /// let nums = vec![1];
+    /// assert_eq!(Solution::max_sub_array(nums), 1);
+    /// ```
+    /// - Explanation: The subarray \[1] has the largest sum 1.
     ///
     /// Example 3:
     /// -----------
-    /// - Input: nums = [5,4,-1,7,8]
-    /// - Output: 23
-    /// - Explanation: The subarray [5,4,-1,7,8] has the largest sum 23.
+    /// ```
+    /// let nums = vec![5,4,-1,7,8];
+    /// assert_eq!(Solution::max_sub_array(nums), 23);
+    /// ```
+    /// - Explanation: The subarray \[5,4,-1,7,8] has the largest sum 23.
     ///
     ///
     /// Constraints:
     /// -----------
-    /// 1 <= nums.length <= 105
-    /// -104 <= nums[i] <= 104
+    /// * 1 <= nums.length <= 105
+    /// * -104 <= nums\[i] <= 104
     ///
     ///
     /// Follow up: If you have figured out the O(n) solution, try coding another solution using the 
@@ -330,34 +344,38 @@ impl Solution {
     ///
     /// Example 1:
     /// ----------
-    /// - Input: nums = [-1,0,1,2,-1,-4]
-    /// - Output: [[-1,-1,2],[-1,0,1]]
-    ///
+    /// ```
+    /// let nums = vec![-1,0,1,2,-1,-4];
+    /// assert_eq!(Solution::three_sum(nums), vec![vec![-1,-1,2],vec![-1,0,1]]);
+    /// ```
     /// Explanation: 
-    /// nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.
-    /// nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.
-    /// nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.
-    /// The distinct triplets are [-1,0,1] and [-1,-1,2].
+    /// - nums\[0] + nums\[1] + nums\[2] = (-1) + 0 + 1 = 0.
+    /// - nums\[1] + nums\[2] + nums\[4] = 0 + 1 + (-1) = 0.
+    /// - nums\[0] + nums\[3] + nums\[4] = (-1) + 2 + (-1) = 0.
+    /// The distinct triplets are \[-1,0,1] and \[-1,-1,2].
     /// Notice that the order of the output and the order of the triplets does not matter.
     ///
     /// Example 2:
     /// ----------
-    /// - Input: nums = [0,1,1]
-    /// - Output: []
-    ///
+    /// ```
+    /// let nums = vec![0,1,1];
+    /// assert_eq!(Solution::three_sum(nums), vec![vec![]]);
+    /// ```
     /// Explanation: The only possible triplet does not sum up to 0.
     ///
     /// Example 3:
     /// ----------
-    /// - Input: nums = [0,0,0]
-    /// - Output: [[0,0,0]]
-    ///
+    /// ```
+    /// let nums = vec![0,0,0];
+    /// let ans = vec![vec![0,0,0]];
+    /// assert_eq!(Solution::three_sum(nums), ans);
+    /// ```
     /// Explanation: The only possible triplet sums up to 0.
     ///
     /// Constraints:
     /// ------------
-    /// 3 <= nums.length <= 3000
-    /// -105 <= nums[i] <= 105
+    /// * 3 <= nums.length <= 3000
+    /// * -105 <= nums[i] <= 105
     pub fn three_sum(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
         fn two_sum(nums: &Vec<i32>, start: i32, ans: &mut Vec<Vec<i32>>) {
             let mut left: i32 = start + 1;

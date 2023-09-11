@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use std::collections::BinaryHeap;
+use std::{collections::BinaryHeap, cmp::Reverse};
 
 struct Solution;
 
@@ -29,8 +29,8 @@ impl Solution {
     ///
     /// Constraints:
     /// ------------
-    /// 1 <= k <= nums.length <= 105
-    /// -104 <= nums[i] <= 104
+    /// * 1 <= k <= nums.length <= 105
+    /// * -104 <= nums[i] <= 104
     /// 
     pub fn find_kth_largest(nums: Vec<i32>, mut k: i32) -> i32 {
         // let mut heap: BinaryHeap<i32> = nums.iter().map(|x| *x).collect();
@@ -43,6 +43,17 @@ impl Solution {
 
         ans
     }
+    pub fn find_kth_largest_ii(nums: Vec<i32>, k: i32) -> i32 {
+        let mut k = k as usize;
+        let mut heap: BinaryHeap<Reverse<i32>> = nums.into_iter().map(|x| Reverse(x)).collect();
+        
+        while heap.len() > k {
+            heap.pop();
+        }
+        
+        let ans = heap.peek().map(|x| x.0).unwrap();
+        ans
+    }
 }
 
 #[cfg(test)]
@@ -53,10 +64,10 @@ mod tests {
     fn test_find_kth_largest() {
         let nums = vec![3,2,1,5,6,4];
         let k = 2;
-        assert_eq!(Solution::find_kth_largest(nums, k), 5);
+        assert_eq!(Solution::find_kth_largest_ii(nums, k), 5);
 
         let nums = vec![3,2,3,1,2,4,5,5,6];
         let k = 4;
-        assert_eq!(Solution::find_kth_largest(nums, k), 4);
+        assert_eq!(Solution::find_kth_largest_ii(nums, k), 4);
     }
 }

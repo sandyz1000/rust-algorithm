@@ -1,7 +1,8 @@
 #![allow(unused)]
 
 use core::num;
-use std::{collections::BinaryHeap, fmt::Binary, cmp::Reverse, ops::Deref};
+use std::{cmp::Reverse};
+use std::collections::BinaryHeap;
 
 /// ## 703. Kth Largest Element in a Stream
 /// 
@@ -16,9 +17,9 @@ use std::{collections::BinaryHeap, fmt::Binary, cmp::Reverse, ops::Deref};
 /// int add(int val) Appends the integer val to the stream and returns the element representing the kth 
 /// largest element in the stream.
 ///  
-///
 /// Example 1:
 /// ----------
+/// ```doc
 /// Input
 /// ["KthLargest", "add", "add", "add", "add", "add"]
 /// [[3, [4, 5, 8, 2]], [3], [5], [10], [9], [4]]
@@ -32,16 +33,16 @@ use std::{collections::BinaryHeap, fmt::Binary, cmp::Reverse, ops::Deref};
 /// kthLargest.add(10);  // return 5
 /// kthLargest.add(9);   // return 8
 /// kthLargest.add(4);   // return 8
+/// ```
 ///  
-///
 /// Constraints:
 /// -----------
-/// 1 <= k <= 104
-/// 0 <= nums.length <= 104
-/// -104 <= nums[i] <= 104
-/// -104 <= val <= 104
-/// At most 104 calls will be made to add.
-/// It is guaranteed that there will be at least k elements in the array when you search for the kth element.
+/// * 1 <= k <= 104
+/// * 0 <= nums.length <= 104
+/// * -104 <= nums\[i] <= 104
+/// * -104 <= val <= 104
+/// * At most 104 calls will be made to add.
+/// * It is guaranteed that there will be at least k elements in the array when you search for the kth element.
 struct KthLargest {
     k: usize,
     hq: BinaryHeap<Reverse<i32>>,

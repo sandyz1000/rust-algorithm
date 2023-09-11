@@ -8,6 +8,43 @@ struct Solution;
 type Graph = HashMap<i32, Vec<i32>>;
 
 impl Solution {
+
+    pub fn max_area_of_island(grid: Vec<Vec<i32>>) -> i32 {
+        let mut graph: Vec<Vec<i32>> = grid.clone();
+        let mut max_area: i32 = 0;
+        for row in 0..graph.len() {
+            for col in 0..graph[0].len() {
+                if grid[row][col] == 1 {
+                    let area = Self::dfs(&mut graph, row, col);
+                    max_area = max_area.max(area);
+                }
+            }
+        }
+        max_area
+    }
+    
+    fn dfs(grid: &mut Vec<Vec<i32>>, row: usize, col: usize) -> i32 {
+        if grid[row][col] == 0 {
+            return 0;
+        }
+
+        const DIRECTIONS: [(i32, i32); 4] = [(-1, 0), (0, -1), (0, 1), (1, 0)];
+        // Mark that node visited 
+        grid[row][col] = 0;
+        let row = row as i32; let col = col as i32;
+        let mut area: i32 = 0;
+        for (dx, dy) in DIRECTIONS.iter() {
+            if row + *dx < 0 || row + *dx >= grid.len() as i32 || 
+                col + *dy < 0 || col + *dy >= grid[0].len() as i32 {
+                continue;
+            }
+            
+            area += Self::dfs(grid, (row + *dx) as usize, (col + *dy) as usize);
+        }
+        
+        area + 1
+    }
+
     /// ## 547. Number of Provinces
     ///
     /// There are n cities. Some of them are connected, while some are not. If city a is connected directly 

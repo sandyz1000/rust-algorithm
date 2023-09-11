@@ -1,5 +1,6 @@
 #![allow(unused)]
 use std::{collections::{HashSet, HashMap, VecDeque}, cell::RefCell, rc::Rc, hash::Hash};
+use std::error::Error;
 
 struct Solution;
 
@@ -11,7 +12,38 @@ struct Node {
 
 type NodeRef = Rc<RefCell<Node>>;
 
+struct UnionFind {
+    pub n: i32,
+    root: Vec<i32>
+}
 
+impl UnionFind {
+    fn new(n: i32) -> Self {
+        UnionFind {
+            n,
+            root: (0..n).collect()
+        }
+    }
+
+    fn find(&mut self, x: i32) -> i32 {
+        // If the parent of node is itself then return it
+        if self.root[x as usize] == x {
+            return x;
+        }
+        self.root[x as usize] = self.find(self.root[x as usize]);
+        self.root[x as usize]
+    }
+
+    fn union(&mut self, x: i32, y: i32) {
+        let x1 = self.find(x);
+        let y1 = self.find(y);
+        // If x and y are in the different sets, then union them
+        if x1 != y1 {
+            self.root[x1 as usize] = y1;
+            self.n -= 1;
+        }
+    }
+}
 impl Solution {
     /// ## Number of Connected Components in an Undirected Graph
     /// https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/description/
@@ -54,8 +86,11 @@ impl Solution {
     /// * ai != bi
     /// * There are no repeated edges.
     pub fn count_components(n: i32, edges: Vec<Vec<i32>>) -> i32 {
-        
-        unimplemented!()    
+        let mut uf = UnionFind::new(n);
+        for edge in edges {
+            uf.union(edge[0], edge[1]);
+        }
+        uf.n
     }
 
     /// ## 261. Graph Valid Tree
